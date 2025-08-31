@@ -1,0 +1,225 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.affectations (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  year_id uuid NOT NULL,
+  teacher_id uuid,
+  class_id uuid,
+  subject_id uuid,
+  nb_hour smallint,
+  day text,
+  slot text,
+  busy boolean DEFAULT false,
+  CONSTRAINT affectations_pkey PRIMARY KEY (id),
+  CONSTRAINT affectations_year_id_fkey FOREIGN KEY (year_id) REFERENCES public.years(id),
+  CONSTRAINT affectations_teacher_id_fkey FOREIGN KEY (teacher_id) REFERENCES public.teachers(id),
+  CONSTRAINT affectations_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id),
+  CONSTRAINT affectations_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES public.subjects(id)
+);
+CREATE TABLE public.classes (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  code text NOT NULL,
+  level_id uuid,
+  capacity smallint,
+  active boolean DEFAULT true,
+  CONSTRAINT classes_pkey PRIMARY KEY (id),
+  CONSTRAINT classes_level_id_fkey FOREIGN KEY (level_id) REFERENCES public.levels(id)
+);
+CREATE TABLE public.classes_statistics (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  year_id uuid DEFAULT gen_random_uuid(),
+  sequence text,
+  class_id uuid DEFAULT gen_random_uuid(),
+  general_average double precision,
+  min_average double precision,
+  max_average double precision,
+  nb_success smallint,
+  success_rate double precision,
+  CONSTRAINT classes_statistics_pkey PRIMARY KEY (id),
+  CONSTRAINT class_averages_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id),
+  CONSTRAINT class_averages_year_id_fkey FOREIGN KEY (year_id) REFERENCES public.years(id)
+);
+CREATE TABLE public.discipline (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  year_id uuid NOT NULL,
+  student_id uuid NOT NULL,
+  type text NOT NULL,
+  quantity smallint NOT NULL,
+  sequence text,
+  comments text,
+  CONSTRAINT discipline_pkey PRIMARY KEY (id),
+  CONSTRAINT discipline_year_id_fkey FOREIGN KEY (year_id) REFERENCES public.years(id),
+  CONSTRAINT discipline_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.students(id)
+);
+CREATE TABLE public.edited_notes (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  note_id bigint,
+  value double precision,
+  author uuid,
+  CONSTRAINT edited_notes_pkey PRIMARY KEY (id),
+  CONSTRAINT edited_notes_note_id_fkey FOREIGN KEY (note_id) REFERENCES public.notes(id)
+);
+CREATE TABLE public.fees_part (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  year_id uuid NOT NULL,
+  part text NOT NULL,
+  amount bigint NOT NULL,
+  CONSTRAINT fees_part_pkey PRIMARY KEY (id),
+  CONSTRAINT fees_part_year_id_fkey FOREIGN KEY (year_id) REFERENCES public.years(id)
+);
+CREATE TABLE public.head_teachers (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  year_id uuid,
+  class_id uuid,
+  teacher_id uuid,
+  CONSTRAINT head_teachers_pkey PRIMARY KEY (id),
+  CONSTRAINT head_teachers_year_id_fkey FOREIGN KEY (year_id) REFERENCES public.years(id),
+  CONSTRAINT head_teachers_teacher_id_fkey FOREIGN KEY (teacher_id) REFERENCES public.teachers(id),
+  CONSTRAINT head_teachers_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id)
+);
+CREATE TABLE public.levels (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  code text NOT NULL UNIQUE,
+  section text NOT NULL,
+  examination boolean NOT NULL,
+  examination_name text,
+  option text,
+  cycle text,
+  CONSTRAINT levels_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.notes (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  last_modified timestamp with time zone DEFAULT now(),
+  year_id uuid,
+  student_id uuid,
+  class_id uuid,
+  sequence text,
+  subject_id uuid,
+  value double precision,
+  coefficient smallint,
+  author uuid,
+  CONSTRAINT notes_pkey PRIMARY KEY (id),
+  CONSTRAINT notes_author_fkey FOREIGN KEY (author) REFERENCES public.teachers(id),
+  CONSTRAINT notes_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.students(id),
+  CONSTRAINT notes_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES public.subjects(id),
+  CONSTRAINT notes_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id),
+  CONSTRAINT notes_year_id_fkey FOREIGN KEY (year_id) REFERENCES public.years(id)
+);
+CREATE TABLE public.quarters (
+  name text NOT NULL,
+  active boolean NOT NULL,
+  CONSTRAINT quarters_pkey PRIMARY KEY (name)
+);
+CREATE TABLE public.registrations (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  year_id uuid NOT NULL,
+  student_id uuid,
+  class_id uuid,
+  repeater boolean,
+  created_at timestamp without time zone DEFAULT now(),
+  amount bigint,
+  receipt_url text,
+  CONSTRAINT registrations_pkey PRIMARY KEY (id),
+  CONSTRAINT registrations_year_id_fkey FOREIGN KEY (year_id) REFERENCES public.years(id),
+  CONSTRAINT registrations_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id),
+  CONSTRAINT registrations_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.students(id)
+);
+CREATE TABLE public.school_fees (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  year_id uuid,
+  student_id uuid,
+  part text,
+  amount bigint,
+  date timestamp with time zone DEFAULT now(),
+  CONSTRAINT school_fees_pkey PRIMARY KEY (id),
+  CONSTRAINT school_fees_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.students(id),
+  CONSTRAINT school_fees_year_id_fkey FOREIGN KEY (year_id) REFERENCES public.years(id)
+);
+CREATE TABLE public.sequence_averages (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  student_id uuid DEFAULT gen_random_uuid(),
+  year_id uuid DEFAULT gen_random_uuid(),
+  class_id uuid DEFAULT gen_random_uuid(),
+  value double precision,
+  sequence text,
+  quarter text,
+  points double precision,
+  total_coefficient smallint,
+  CONSTRAINT sequence_averages_pkey PRIMARY KEY (id),
+  CONSTRAINT averages_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.students(id),
+  CONSTRAINT averages_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id),
+  CONSTRAINT averages_year_id_fkey FOREIGN KEY (year_id) REFERENCES public.years(id)
+);
+CREATE TABLE public.sequences (
+  name text NOT NULL,
+  active boolean NOT NULL,
+  quarter text,
+  CONSTRAINT sequences_pkey PRIMARY KEY (name),
+  CONSTRAINT sequence_quarter_fkey FOREIGN KEY (quarter) REFERENCES public.quarters(name)
+);
+CREATE TABLE public.students (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  surname text NOT NULL,
+  birth_date date,
+  birth_place text,
+  gender text CHECK (gender = ANY (ARRAY['M'::text, 'F'::text])),
+  father text,
+  mother text,
+  contact text,
+  other_contact text,
+  city text,
+  registration_number text,
+  image_url text,
+  CONSTRAINT students_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.subjects (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  groupe text,
+  level_id uuid,
+  coefficient smallint,
+  hourly_load smallint,
+  short_name text,
+  CONSTRAINT subjects_pkey PRIMARY KEY (id),
+  CONSTRAINT subjects_level_id_fkey FOREIGN KEY (level_id) REFERENCES public.levels(id)
+);
+CREATE TABLE public.teachers (
+  id uuid NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  name text,
+  surname text,
+  gender text,
+  pay bigint,
+  subjects jsonb,
+  contact text,
+  CONSTRAINT teachers_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.users (
+  id uuid NOT NULL,
+  name text NOT NULL,
+  surname text NOT NULL,
+  role text NOT NULL CHECK (role = ANY (ARRAY['admin'::text, 'professeur'::text, 'principal'::text, 'économe'::text, 'secrétaire'::text, 'préfet'::text])),
+  contact text,
+  email text UNIQUE,
+  function text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
+  image_url text,
+  CONSTRAINT users_pkey PRIMARY KEY (id),
+  CONSTRAINT users_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.years (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  active boolean,
+  short bigint,
+  start date,
+  end date,
+  CONSTRAINT years_pkey PRIMARY KEY (id)
+);
+

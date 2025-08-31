@@ -1,0 +1,196 @@
+-- =================================================================
+-- SCRIPT DE POLITIQUES DE SÉCURITÉ AU NIVEAU DES LIGNES (RLS)
+-- =================================================================
+-- Ce script supprime les politiques existantes avant de les recréer
+-- pour éviter les erreurs en cas de ré-exécution.
+-- =================================================================
+
+-- Policies for: public.affectations
+DROP POLICY IF EXISTS affectations_select_policy ON public.affectations;
+CREATE POLICY affectations_select_policy ON public.affectations FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS affectations_insert_policy ON public.affectations;
+CREATE POLICY affectations_insert_policy ON public.affectations FOR INSERT WITH CHECK (get_my_role() IN ('préfet', 'admin'));
+
+DROP POLICY IF EXISTS affectations_update_policy ON public.affectations;
+CREATE POLICY affectations_update_policy ON public.affectations FOR UPDATE USING (get_my_role() IN ('préfet', 'admin'));
+
+---
+
+-- Policies for: public.classes
+DROP POLICY IF EXISTS classes_select_policy ON public.classes;
+CREATE POLICY classes_select_policy ON public.classes FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS classes_insert_policy ON public.classes;
+CREATE POLICY classes_insert_policy ON public.classes FOR INSERT WITH CHECK (get_my_role() IN ('préfet', 'admin'));
+
+DROP POLICY IF EXISTS classes_update_policy ON public.classes;
+CREATE POLICY classes_update_policy ON public.classes FOR UPDATE USING (get_my_role() IN ('préfet', 'admin'));
+
+---
+
+-- Policies for: public.discipline (Règles fusionnées)
+DROP POLICY IF EXISTS discipline_select_policy ON public.discipline;
+CREATE POLICY discipline_select_policy ON public.discipline FOR SELECT USING (get_my_role() IN ('admin', 'principal'));
+
+DROP POLICY IF EXISTS discipline_insert_policy ON public.discipline;
+CREATE POLICY discipline_insert_policy ON public.discipline FOR INSERT WITH CHECK (get_my_role() IN ('professeur', 'principal', 'secrétaire'));
+
+DROP POLICY IF EXISTS discipline_update_policy ON public.discipline;
+CREATE POLICY discipline_update_policy ON public.discipline FOR UPDATE USING (get_my_role() IN ('professeur', 'principal', 'secrétaire'));
+
+DROP POLICY IF EXISTS discipline_delete_policy ON public.discipline;
+CREATE POLICY discipline_delete_policy ON public.discipline FOR DELETE USING (get_my_role() IN ('professeur', 'principal', 'secrétaire'));
+
+---
+
+-- Policies for: public.fees_part
+DROP POLICY IF EXISTS fees_part_select_policy ON public.fees_part;
+CREATE POLICY fees_part_select_policy ON public.fees_part FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS fees_part_insert_policy ON public.fees_part;
+CREATE POLICY fees_part_insert_policy ON public.fees_part FOR INSERT WITH CHECK (get_my_role() IN ('admin', 'principal'));
+
+---
+
+-- Policies for: public.head_teachers
+DROP POLICY IF EXISTS head_teachers_select_policy ON public.head_teachers;
+CREATE POLICY head_teachers_select_policy ON public.head_teachers FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS head_teachers_insert_policy ON public.head_teachers;
+CREATE POLICY head_teachers_insert_policy ON public.head_teachers FOR INSERT WITH CHECK (get_my_role() IN ('préfet', 'principal'));
+
+DROP POLICY IF EXISTS head_teachers_update_policy ON public.head_teachers;
+CREATE POLICY head_teachers_update_policy ON public.head_teachers FOR UPDATE USING (get_my_role() IN ('préfet', 'principal'));
+
+---
+
+-- Policies for: public.levels
+DROP POLICY IF EXISTS levels_select_policy ON public.levels;
+CREATE POLICY levels_select_policy ON public.levels FOR SELECT USING (true);
+
+---
+
+-- Policies for: public.notes
+DROP POLICY IF EXISTS notes_select_policy ON public.notes;
+CREATE POLICY notes_select_policy ON public.notes FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS notes_insert_policy ON public.notes;
+CREATE POLICY notes_insert_policy ON public.notes FOR INSERT WITH CHECK (get_my_role() = 'professeur');
+
+DROP POLICY IF EXISTS notes_update_policy ON public.notes;
+CREATE POLICY notes_update_policy ON public.notes FOR UPDATE USING (get_my_role() = 'professeur');
+
+DROP POLICY IF EXISTS notes_delete_policy ON public.notes;
+CREATE POLICY notes_delete_policy ON public.notes FOR DELETE USING (get_my_role() = 'professeur');
+
+---
+
+-- Policies for: public.quarters
+DROP POLICY IF EXISTS quarters_select_policy ON public.quarters;
+CREATE POLICY quarters_select_policy ON public.quarters FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS quarters_update_policy ON public.quarters;
+CREATE POLICY quarters_update_policy ON public.quarters FOR UPDATE USING (get_my_role() IN ('admin', 'principal'));
+
+---
+
+-- Policies for: public.sequences
+DROP POLICY IF EXISTS sequences_select_policy ON public.sequences;
+CREATE POLICY sequences_select_policy ON public.sequences FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS sequences_update_policy ON public.sequences;
+CREATE POLICY sequences_update_policy ON public.sequences FOR UPDATE USING (get_my_role() IN ('admin', 'principal'));
+
+---
+
+-- Policies for: public.registrations
+DROP POLICY IF EXISTS registrations_select_policy ON public.registrations;
+CREATE POLICY registrations_select_policy ON public.registrations FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS registrations_insert_policy ON public.registrations;
+CREATE POLICY registrations_insert_policy ON public.registrations FOR INSERT WITH CHECK (get_my_role() IN ('secrétaire', 'économe'));
+
+DROP POLICY IF EXISTS registrations_update_policy ON public.registrations;
+CREATE POLICY registrations_update_policy ON public.registrations FOR UPDATE USING (get_my_role() IN ('secrétaire', 'économe'));
+
+---
+
+-- Policies for: public.school_fees
+DROP POLICY IF EXISTS school_fees_select_policy ON public.school_fees;
+CREATE POLICY school_fees_select_policy ON public.school_fees FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS school_fees_insert_policy ON public.school_fees;
+CREATE POLICY school_fees_insert_policy ON public.school_fees FOR INSERT WITH CHECK (get_my_role() IN ('économe', 'secrétaire'));
+
+---
+
+-- Policies for: public.sequence_averages
+DROP POLICY IF EXISTS sequence_averages_select_policy ON public.sequence_averages;
+CREATE POLICY sequence_averages_select_policy ON public.sequence_averages FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS sequence_averages_insert_policy ON public.sequence_averages;
+CREATE POLICY sequence_averages_insert_policy ON public.sequence_averages FOR INSERT WITH CHECK (get_my_role() IN ('préfet', 'principal'));
+
+DROP POLICY IF EXISTS sequence_averages_update_policy ON public.sequence_averages;
+CREATE POLICY sequence_averages_update_policy ON public.sequence_averages FOR UPDATE USING (get_my_role() IN ('préfet', 'principal'));
+
+---
+
+-- Policies for: public.students
+DROP POLICY IF EXISTS students_select_policy ON public.students;
+CREATE POLICY students_select_policy ON public.students FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS students_insert_policy ON public.students;
+CREATE POLICY students_insert_policy ON public.students FOR INSERT WITH CHECK (get_my_role() IN ('économe', 'secrétaire'));
+
+DROP POLICY IF EXISTS students_update_policy ON public.students;
+CREATE POLICY students_update_policy ON public.students FOR UPDATE USING (get_my_role() IN ('économe', 'secrétaire'));
+
+---
+
+-- Policies for: public.subjects
+DROP POLICY IF EXISTS subjects_select_policy ON public.subjects;
+CREATE POLICY subjects_select_policy ON public.subjects FOR SELECT USING (true);
+
+---
+
+-- Policies for: public.teachers
+DROP POLICY IF EXISTS teachers_select_policy ON public.teachers;
+CREATE POLICY teachers_select_policy ON public.teachers FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS teachers_insert_policy ON public.teachers;
+CREATE POLICY teachers_insert_policy ON public.teachers FOR INSERT WITH CHECK (get_my_role() IN ('principal', 'admin'));
+
+DROP POLICY IF EXISTS teachers_update_policy ON public.teachers;
+CREATE POLICY teachers_update_policy ON public.teachers FOR UPDATE USING (get_my_role() IN ('principal', 'admin'));
+
+DROP POLICY IF EXISTS teachers_delete_policy ON public.teachers;
+CREATE POLICY teachers_delete_policy ON public.teachers FOR DELETE USING (get_my_role() = 'admin');
+
+---
+
+-- Policies for: public.users
+DROP POLICY IF EXISTS users_select_policy ON public.users;
+CREATE POLICY users_select_policy ON public.users FOR SELECT USING (get_my_role() = 'admin');
+
+DROP POLICY IF EXISTS users_insert_policy ON public.users;
+CREATE POLICY users_insert_policy ON public.users FOR INSERT WITH CHECK (get_my_role() = 'admin');
+
+DROP POLICY IF EXISTS users_update_policy ON public.users;
+CREATE POLICY users_update_policy ON public.users FOR UPDATE USING (get_my_role() = 'admin');
+
+DROP POLICY IF EXISTS users_delete_policy ON public.users;
+CREATE POLICY users_delete_policy ON public.users FOR DELETE USING (get_my_role() = 'admin');
+
+---
+
+-- Policies for: public.years
+DROP POLICY IF EXISTS years_select_policy ON public.years;
+CREATE POLICY years_select_policy ON public.years FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS years_insert_policy ON public.years;
+CREATE POLICY years_insert_policy ON public.years FOR INSERT WITH CHECK (get_my_role() IN ('admin', 'principal'));
+
+DROP POLICY IF EXISTS years_update_policy ON public.years;
+CREATE POLICY years_update_policy ON public.years FOR UPDATE USING (get_my_role() IN ('admin', 'principal'));
