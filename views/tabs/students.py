@@ -24,7 +24,7 @@ DEFAULT_IMAGE_URL = ''
 class Students(ft.Container):
     def __init__(self, cp: object):
         super().__init__(
-            expand=True, alignment=ft.alignment.center, bgcolor=PAGE_BG_COLOR
+            expand=True, alignment=ft.alignment.center, bgcolor=MAIN_COLOR
         )
         self.cp = cp
         lang = self.cp.language
@@ -197,7 +197,10 @@ class Students(ft.Container):
                                                 controls=[
                                                     ft.Text(languages[self.lang]['school fees'].upper(), size=16,
                                                             font_family="PPB"),
-                                                    ft.Divider(height=1, thickness=1),
+                                                    ft.Divider(
+                                                        height=1, thickness=1,
+                                                        badge=ft.Badge(text=f"{languages[self.lang]['school fees'].upper()}")
+                                                    ),
                                                 ], spacing=0
                                             ),
                                             ft.Row([ft.Text(languages[self.lang]['pay off'], size=16,

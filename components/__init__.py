@@ -1,7 +1,7 @@
 import flet as ft
 from utils.couleurs import *
 from translations.translations import languages
-from utils.styles import drop_style, login_style
+from utils.styles import drop_style, login_style, outline_style
 from services.supabase_client import supabase_client
 from services.async_functions.students_functions import *
 from utils.useful_functions import *
@@ -50,7 +50,7 @@ class MyButton(ft.ElevatedButton):
 class OneStudent(ft.Container):
     def __init__(self, cp: object, infos: dict):
         super().__init__(
-            padding=10, data=infos, border_radius=16,
+            padding=10, data=infos, border_radius=16, margin=10,
             on_hover=self.effect_hover, on_click=self.open_edit_window
             # shadow=ft.BoxShadow(
             #     spread_radius=2,
@@ -330,3 +330,47 @@ class DateSelection(ft.Row):
                 ], spacing=3
             )
         ]
+
+
+class OneClass(ft.Container):
+    def __init__(self, cp: object, infos: dict):
+        super().__init__(
+            padding=10, data=infos, border_radius=16,  # margin=10,
+            on_hover=None, on_click=None,
+        )
+        self.infos = infos
+        self.cp = cp
+
+        self.content = ft.Row(
+            controls=[
+                ft.Row(
+                    controls=[
+                        ft.Row(
+                            controls=[
+                                ft.Icon(
+                                    ft.Icons.SCHOOL if infos['is_examination_class'] else ft.Icons.ACCOUNT_BALANCE_OUTLINED
+                                ),
+                                ft.Text(f"{infos['code']}", size=16, font_family="PPM")
+                            ]
+                        ),
+                        ft.VerticalDivider(10, 1,),
+                        ft.Text(f"{infos['head_teacher_name']} {infos['head_teacher_surname']}", size=16, font_family="PPM")
+                    ]
+                ),
+                ft.IconButton(
+                    ft.Icons.FORMAT_LIST_BULLETED_OUTLINED, icon_size=24, icon_color='black'
+                )
+            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+        )
+
+
+
+
+
+
+
+
+
+
+
+

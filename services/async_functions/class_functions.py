@@ -81,7 +81,7 @@ async def get_classes_details(access_token: str) -> List[dict]:
         ]
 
 
-async def get_all_level_codes(access_token: str) -> List[str]:
+async def get_all_level_codes(access_token: str) -> List[Dict]:
     async with httpx.AsyncClient() as client:
         response = await client.get(
             f"{url}/rest/v1/levels",
@@ -91,7 +91,7 @@ async def get_all_level_codes(access_token: str) -> List[str]:
                 "Accept": "application/json"
             },
             params={
-                "select": "code"
+                "select": "*"
             }
         )
 
@@ -100,7 +100,7 @@ async def get_all_level_codes(access_token: str) -> List[str]:
             return []
 
         data = response.json()
-        return [item["code"] for item in data if "code" in item]
+        return data
 
 
 async def get_total_enrolled_students(access_token: str) -> int:
@@ -305,6 +305,48 @@ async def get_head_teacher_name(access_token: str, class_id: str, year_id: str) 
             "surname": item["secure_teachers"]["surname"]
         }
 
+
+async def get_classes_details_by_year(access_token: str, year_id: str) -> list[Dict]:
+    """
+
+    :param access_token:
+    :param year_id:
+    :return:
+    """
+    query_url = f"{url}/rest/v1/classes_details?"
+    headers = {
+        "apikey": key,
+        "Authorization": f"Bearer {access_token}"
+    }
+    params = {
+        "select": "*",
+        "year_id": f"eq.{year_id}"
+    }
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                url=query_url,
+                params=params,
+                headers=headers
+            )
+            # Lève une exception si la réponse n'est pas un succès (ex: 4xx, 5xx)
+            response.raise_for_status()
+
+            # Retourne les données JSON
+            return response.json()
+
+
+    except httpx.HTTPStatusError as e:
+
+        print(f"Erreur HTTP: {e.response.status_code} - {e.response.text}")
+
+        return None
+
+    except httpx.RequestError as e:
+
+        print(f"Une erreur de requête est survenue: {e}")
+
+        return None
 
 
 
