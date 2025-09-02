@@ -3,6 +3,7 @@ from components.item_menu import ItemMenu
 from utils.couleurs import *
 from translations.translations import languages
 from views.tabs.students import Students
+from views.tabs.classes import Classes
 
 
 roles = {
@@ -69,6 +70,11 @@ class NavBar(ft.Column):
         if e.control.name.value.lower() in (
                 languages['en']['menu students'].lower(), languages['fr']['menu students'].lower()):
             self.cp.my_content.controls.append(Students(self.cp))
+            self.cp.page.update()
+
+        elif e.control.name.value.lower() in (
+                languages['en']['menu classes'].lower(), languages['fr']['menu classes'].lower()):
+            self.cp.my_content.controls.append(Classes(self.cp))
             self.cp.page.update()
 
         else:
