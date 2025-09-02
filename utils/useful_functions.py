@@ -72,4 +72,6 @@ def convertir_date(date_str):
     return f"{jour}/{mois}/{annee}"
 
 
-
+def joindre_liste(my_list) -> str:
+    chaine_finale = ", ".join(my_list)
+    return chaine_finale

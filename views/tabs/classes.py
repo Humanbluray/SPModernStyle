@@ -1,5 +1,5 @@
 from utils.couleurs import *
-from components import MyButton, MyTextButton, OneClass
+from components import MyButton, MyTextButton, MyMiniIcon
 from services.async_functions.general_functions import *
 from services.async_functions.class_functions import *
 from services.supabase_client import supabase_client
@@ -352,10 +352,14 @@ class Classes(ft.Container):
                         ),
                         ft.DataCell(ft.Text(f"{teacher_name}")),
                         ft.DataCell(
-                            ft.IconButton(
-                                ft.Icons.FORMAT_LIST_BULLETED, icon_size=24, icon_color='black',
-                                data=item, on_click=self.show_class_details
-                            )
+                            MyMiniIcon(
+                                'format_list_bulleted', languages[self.lang]['details'], 'black', item,
+                                self.show_class_details
+                            ),
+                            # ft.IconButton(
+                            #     ft.Icons.FORMAT_LIST_BULLETED, icon_size=24, icon_color='black',
+                            #     data=item, on_click=self.show_class_details
+                            # )
                         )
                     ], color=line_color
                 )
