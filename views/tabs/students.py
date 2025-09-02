@@ -38,7 +38,13 @@ class Students(ft.Container):
         self.search = ft.TextField(
             **login_style, prefix_icon='search', width=300, on_change=self.filter_datas
         )
-        self.table = ft.ListView(expand=True, spacing=10, divider_thickness=1)
+        self.table = ft.GridView(
+            expand=True,
+            max_extent=220,
+            child_aspect_ratio=0.85,
+            spacing=10,
+            run_spacing=10
+        )
 
         self.active_sequence = ft.Text(size=13, font_family='PPM')
         self.active_quarter = ft.Text(size=13, font_family='PPM')
@@ -104,8 +110,8 @@ class Students(ft.Container):
                         ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
                     ),
                     ft.Container(
-                        padding=0, border_radius=16, border=ft.border.all(1, ft.Colors.GREY_300),
-                        expand=True, bgcolor='white', content=self.table
+                        padding=0, border_radius=16,
+                        expand=True, content=self.table
                     )
                 ]
             )
@@ -550,9 +556,9 @@ class Students(ft.Container):
             **ct_style,
             content=ft.Container(
                 **intern_ct_style,
-                width=600, height=700, padding=0,
+                width=600, padding=0,
                 content=ft.Column(
-                    expand=True,
+                    expand=True, scroll=ft.ScrollMode.AUTO,
                     controls=[
                         ft.Container(
                             bgcolor="white", padding=20,
@@ -624,9 +630,9 @@ class Students(ft.Container):
             **ct_style,
             content=ft.Container(
                 **intern_ct_style,
-                width=600, height=620, padding=0,
+                width=600, padding=0,
                 content=ft.Column(
-                    expand=True,
+                    expand=True, scroll=ft.ScrollMode.AUTO,
                     controls=[
                         ft.Container(
                             bgcolor="white", padding=20,
@@ -711,9 +717,9 @@ class Students(ft.Container):
             **ct_style,
             content=ft.Container(
                 **intern_ct_style,
-                width=700, height=650, padding=0,
+                width=700, padding=0,
                 content=ft.Column(
-                    expand=True,
+                    expand=True, scroll=ft.ScrollMode.AUTO,
                     controls=[
                         ft.Container(
                             bgcolor="white", padding=20,

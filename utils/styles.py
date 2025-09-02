@@ -27,7 +27,7 @@ ml_style: dict = dict(
 outline_style: dict = dict(
     border_radius=ft.border_radius.all(10),
     border_color=ft.Colors.with_opacity(0.3, ft.Colors.BLACK),
-    focused_border_color=BASE_COLOR,
+    focused_border_color=BASE_COLOR, border=ft.InputBorder.NONE,
     height=50,
     autofocus=True, content_padding=12, cursor_color=BASE_COLOR, read_only=True,
     hint_style=ft.TextStyle(size=16, font_family='PPM', color="black"),
