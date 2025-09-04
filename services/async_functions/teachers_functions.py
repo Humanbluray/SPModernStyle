@@ -226,13 +226,11 @@ async def is_teacher_busy(teacher_id: str, day: str, slot: str, access_token: st
         }
 
 
-async def get_teacher_affectations_details(teacher_id: str, access_token: str) -> List[Dict]:
+async def get_teacher_affectations_details(teacher_id: str, access_token: str, year_id: str) -> List[Dict]:
     headers = {
         "Authorization": f"Bearer {access_token}",
         "apikey": key  # supprime si inutile
     }
-
-    year_id = await get_active_year_id(access_token)
 
     url_query = (
         f"{url}/rest/v1/affectations"
@@ -676,7 +674,7 @@ async def get_classes_without_head_teacher(access_token: str, year_id: str,) -> 
 
 
 
-async def get_class_subjects_hours(access_token: str, class_id: str, year_id: str):
+async def get_class_subjects_hours(access_token: str, class_id: str, year_id: str) -> List[Dict]:
     """
 
     :param access_token:
@@ -701,7 +699,28 @@ async def get_class_subjects_hours(access_token: str, class_id: str, year_id: st
         return response.json()  # renvoie toutes les lignes correspondant aux filtres
 
 
+async def get_teachers_detailed_affectations(access_token: str, teacher_id: str, year_id: str) -> List[Dict]:
+    """
 
+    :param access_token:
+    :param teacher_id:
+    :param year_id:
+    :return:
+    """
+    query_url = f"{url}/rest/v1/teacher_affectations_report"
+    params = {
+        "teacher_id": f"eq.{teacher_id}",
+        "year_id": f"eq.{year_id}",
+        "select": "*"
+    }
+    headers = {
+        "apikey": key,
+        "Authorization": f"Bearer {access_token}"
+    }
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url=query_url, params=params, headers=headers)
+        response.raise_for_status()  # lève une erreur si status != 200
+        return response.json()  # renvoie toutes les lignes correspondant aux filtres
 
 
 

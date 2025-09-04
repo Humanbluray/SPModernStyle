@@ -34,6 +34,7 @@ class Home(ft.View):
         self.year_id = get_current_year_id()
         self.year_label = get_current_year_label()
         self.year_short = get_current_year_short()
+        self.role = ''
 
         # infos user...
         self.user_name = ft.Text("", size=18, font_family='PPB')
@@ -207,6 +208,7 @@ class Home(ft.View):
     async def check_auth(self):
         access_token = self.page.client_storage.get("access_token")
         role = self.page.client_storage.get("access_token")
+        self.role = role
         print(f"[DEBUG] role: {role}")
         print("[DEBUG] Access token :", access_token)
 

@@ -1,5 +1,6 @@
 import flet as ft
 import flet.core.alignment
+from flet.core.map.rich_attribution import AttributionAlignment
 
 from utils.couleurs import *
 from translations.translations import languages
@@ -11,7 +12,7 @@ from utils.useful_functions import *
 import threading
 
 day_color = {
-    'day 1' : {'fg_color': ft.Colors.DEEP_ORANGE, 'bg_color': ft.Colors.DEEP_ORANGE_50},
+    'day 1' : {'fg_color': ft.Colors.AMBER, 'bg_color': ft.Colors.AMBER_50},
     'day 2' : {'fg_color': ft.Colors.TEAL, 'bg_color': ft.Colors.TEAL_50},
     'day 3' : {'fg_color': ft.Colors.INDIGO, 'bg_color': ft.Colors.INDIGO_50},
     'day 4' : {'fg_color': ft.Colors.PINK, 'bg_color': ft.Colors.PINK_50},
@@ -23,6 +24,64 @@ day_short_name = {
     'day 3' : {'en': 'WED', 'fr': 'MER'},
     'day 4' : {'en': 'THU', 'fr': 'JEU'},
     'day 5' : {'en': 'FRI', 'fr': 'VEN'},
+}
+short_names_icons = {
+
+    "GEOG.": ft.Icons.TRAVEL_EXPLORE,
+
+    "PROG.": ft.Icons.DEVELOPER_BOARD,
+
+    "INFO.": ft.Icons.COMPUTER,
+
+    "MAINT. MM.": ft.Icons.HANDYMAN_SHARP,
+
+    "MATHS": ft.Icons.CALCULATE_ROUNDED,
+
+    "LANG. NAT.": ft.Icons.LANGUAGE,
+
+    "LANG. FRA.": ft.Icons.LANGUAGE,
+
+    "R.S.I.": ft.Icons.ACCOUNT_TREE,
+
+    "EDU. ART.": ft.Icons.PALETTE,
+
+    "CHIMIE": ft.Icons.SCIENCE,
+
+    "SCIENCES": ft.Icons.BIOTECH,
+
+    "FRANC.": ft.Icons.LANGUAGE,
+
+    "P.C.T.": ft.Icons.SCIENCE,
+
+    "T.M.": ft.Icons.FOREST,
+
+    "LETT. CLA.": ft.Icons.LANGUAGE,
+
+    "HIST.": ft.Icons.HISTORY_EDU_ROUNDED,
+
+    "ALGO.": ft.Icons.CODE,
+
+    "PHILO": ft.Icons.LANGUAGE,
+
+    "S.V.T.": ft.Icons.BIOTECH,
+
+    "CULT. NAT.": ft.Icons.FLAG,
+
+    "ESPA.": ft.Icons.LANGUAGE,
+
+    "ALLEM.": ft.Icons.LANGUAGE,
+
+    "E.C.M.": ft.Icons.FLAG,
+
+    "ANGL.": ft.Icons.LANGUAGE,
+
+    "SYST. INF.": ft.Icons.MEMORY,
+
+    "SPORT.": ft.Icons.DIRECTIONS_RUN,
+
+    "PHYS.": ft.Icons.SCIENCE,
+
+    "LITTER.": ft.Icons.LANGUAGE
 }
 
 
@@ -84,6 +143,46 @@ class MyButton(ft.ElevatedButton):
             self.my_icon.update()
 
 
+class MyColorButton(ft.ElevatedButton):
+    def __init__(self, title: str, my_icon, color: str, my_width, click):
+        super().__init__(
+            style=ft.ButtonStyle(
+                shape=ft.RoundedRectangleBorder(radius=ft.border_radius.all(12)),
+                bgcolor=color,
+                color=ft.Colors.WHITE,
+                padding=ft.padding.symmetric(horizontal=30, vertical=15),
+            ),
+            on_click=click, width=my_width, height=50, on_hover=self.hover_effect,
+            elevation=0,
+        )
+        self.title = ft.Text(
+            title.capitalize(), size=16, font_family="PPM",
+            scale=ft.Scale(1), animate_scale=ft.Animation(300, ft.AnimationCurve.EASE_OUT_CUBIC),
+        )
+        self.my_icon = ft.Icon(
+            my_icon, size=20, color="white", visible=False if my_icon is None else True,
+            scale=ft.Scale(1), animate_scale=ft.Animation(300, ft.AnimationCurve.EASE_OUT_CUBIC),
+        )
+        self.content=ft.Row(
+            controls=[
+                self.my_icon,
+                self.title
+            ], alignment=ft.MainAxisAlignment.CENTER
+        )
+
+    def hover_effect(self, e):
+        if e.data == 'true':
+            self.title.scale =1.2
+            self.my_icon.scale =1.2
+            self.title.update()
+            self.my_icon.update()
+        else:
+            self.title.scale = 1
+            self.my_icon.scale = 1
+            self.title.update()
+            self.my_icon.update()
+
+
 class OneStudent(ft.Card):
     def __init__(self, cp: object, infos: dict):
         super().__init__(
@@ -92,31 +191,39 @@ class OneStudent(ft.Card):
         self.infos = infos
         self.cp = cp
 
+        if infos['student_gender'] == 'M':
+            gender_icon = ft.Icons.WOMAN
+            gender_color = ft.Colors.BLUE
+            gender_bg_color = ft.Colors.BLUE_50
+
+        else:
+            gender_icon = ft.Icons.MAN
+            gender_color = ft.Colors.PINK
+            gender_bg_color = ft.Colors.PINK_50
+
         self.rep_container = ft.Container(
             alignment=ft.alignment.center, width=30, shape=ft.BoxShape.CIRCLE, bgcolor='red50',
-            content=ft.Text('R', size=13, font_family='PEB', color='red700'),
+            content=ft.Text('R', size=13, font_family='PPB', color='red700'),
              border=ft.border.all(1, 'red700'), visible=True if infos['repeater'] else False
         )
         self.new_container = ft.Container(
             alignment=ft.alignment.center, width=30, shape=ft.BoxShape.CIRCLE, bgcolor='teal50',
-            content=ft.Text('N', size=13, font_family='PEB', color='teal700'),
+            content=ft.Text('N', size=13, font_family='PPB', color='teal700'),
              border=ft.border.all(1, 'teal700'), visible=True if not infos['repeater'] else False
         )
         self.ct = ft.Container(
-            padding=10, border_radius=16, bgcolor='white', width=260, height=300,
+            padding=10, border_radius=16, bgcolor='white', width=300,
             on_hover=self.effect_hover,
             scale=ft.Scale(1), animate_scale=ft.Animation(300, ft.AnimationCurve.EASE_OUT),
             content=ft.Column(
                 controls=[
                     ft.Stack(
-                        alignment=ft.alignment.bottom_right,
                         controls=[
-                            ft.CircleAvatar(radius=30, foreground_image_src=infos['image_url']),
-                            ft.Icon(
-                                ft.Icons.CIRCLE, size=10,
-                                color='pink' if infos['student_gender'] == "F" else 'blue'
+                            ft.CircleAvatar(radius=50, foreground_image_src=infos['image_url']),
+                            ColoredIcon(
+                                gender_icon, gender_color, gender_bg_color
                             )
-                        ]
+                        ], alignment=ft.alignment.bottom_right
                     ),
                     ft.Divider(height=1, color=ft.Colors.TRANSPARENT),
                     ft.Column(
@@ -132,7 +239,6 @@ class OneStudent(ft.Card):
                     ),
                     ft.Row(
                         controls=[
-                            ft.Icon("roofing", size=24, color="grey"),
                             ft.Text(f"{infos['class_code']}", size=16, font_family="PPM"),
                             ft.Row([self.rep_container, self.new_container]),
                         ], alignment=ft.MainAxisAlignment.CENTER
@@ -140,7 +246,7 @@ class OneStudent(ft.Card):
                     ft.Divider(height=1, thickness=1),
                     ft.Row(
                         controls=[
-                            ft.Text('Actions', size=16, font_family='PPM'),
+                            # ft.Text('Actions', size=16, font_family='PPM'),
                             ft.PopupMenuButton(
                                 content=ft.Icon(ft.Icons.FORMAT_LIST_BULLETED, size=24, color='black'),
                                 bgcolor="white",
@@ -187,7 +293,7 @@ class OneStudent(ft.Card):
                                     )
                                 ]
                             ),
-                        ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                        ], alignment=ft.MainAxisAlignment.CENTER
                     )
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER
             )
@@ -521,95 +627,105 @@ class EditSingleOption(ft.Container):
         self.update()
 
 
-class SlotCard(ft.Container):
+class SlotCard(ft.Card):
     def __init__(self, cp: object, infos: dict):
         super().__init__(
-            border_radius=16, bgcolor = day_color[infos['day']]['bg_color'],
-            # border=ft.border.all(1, 'black')
+            elevation=5,
+            shape=ft.RoundedRectangleBorder(radius=16),
         )
-        self.cp = cp
         self.infos = infos
-        self.delete_bt = MyMiniIcon('delete_outlined', languages[self.cp.lang]['free slot'], "black", self.infos, self.free_affectation)
-        self.assign_bt = MyMiniIcon(ft.Icons.ADD, languages[self.cp.lang]['assign slot'], "black", self.infos, self.add_affectation)
-        self.check = ft.Checkbox()
-        role = self.cp.cp.page.client_storage.get('role')
+        self.cp = cp
+
+        prof = "-" if not infos['teacher_id'] else infos['teacher_name']
+        mat = "-" if not infos['subject_id'] else infos['subject_short_name']
+        class_code = "-" if not infos['class_id'] else infos['class_code']
+        subject_icon = short_names_icons[self.infos['subject_short_name']] if self.infos['subject_id'] else None
+
+        self.delete_bt = MyColorButton(
+            languages[self.cp.lang]['free slot'], None, day_color[infos['day']]['fg_color'],
+            170, self.delete_affectation
+        )
+        self.assign_bt = MyColorButton(
+            languages[self.cp.lang]['assign slot'], None, day_color[infos['day']]['fg_color'],
+            170, self.add_affectation
+        )
+
+        for widget in (self.assign_bt, self.delete_bt):
+            widget.data = self.infos
+
+        role = self.cp.cp.role
 
         if infos['status']:
             if role not in ['principal', 'préfet']:
-                self.status_icon = ft.Icons.INDETERMINATE_CHECK_BOX_OUTLINED
-                self.status_color = 'red'
                 self.delete_bt.visible = False
                 self.assign_bt.visible = False
-                self.check.disabled = True
-                self.visible_bgcolor = day_color[infos['day']]['fg_color']
-
             else:
-                self.status_icon = ft.Icons.INDETERMINATE_CHECK_BOX_OUTLINED
-                self.status_color = 'red'
                 self.delete_bt.visible = True
                 self.assign_bt.visible = False
-                self.check.disabled = True
-                self.visible_bgcolor = day_color[infos['day']]['fg_color']
+
+            bg_color = day_color[infos['day']]['bg_color']
 
         else:
             if role not in ['principal', 'préfet']:
-                self.status_icon = ft.Icons.CHECK_CIRCLE
-                self.status_color = 'green'
                 self.delete_bt.visible = False
                 self.assign_bt.visible = False
-                self.check.disabled = False
-                self.visible_bgcolor = 'white'
-
             else:
-                self.status_icon = ft.Icons.CHECK_CIRCLE
-                self.status_color = 'green'
                 self.delete_bt.visible = False
                 self.assign_bt.visible = True
-                self.check.disabled = False
-                self.visible_bgcolor = 'white'
 
-        self.prof = "" if infos['teacher_id'] is None else infos['teacher_name']
-        self.mat = "" if infos['subject_id'] is None else infos['subject_short_name']
-        self.class_code = "" if infos['class_id'] is None else infos['class_code']
+            bg_color = ft.Colors.WHITE
 
         self.content = ft.Container(
-            border_radius=16, padding=10, width=210,
+            padding=ft.padding.only(20, 10, 20, 10),
+            border_radius=16, width=260, height=300, bgcolor=bg_color,
             content=ft.Column(
+                spacing=10,
                 controls=[
-                    ft.Container(
-                        padding=5, border_radius=8, bgcolor='white', content=ft.Row(
-                            controls=[
-                                ft.Icon(self.status_icon, size=18, color=self.status_color),
-                                ft.Text(languages[self.cp.lang][infos['day']].upper(), size=14, font_family="PPM"),
-                            ], alignment=ft.MainAxisAlignment.CENTER
-                        )
-                    ),
                     ft.Row(
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                        controls=[
+                            ft.Container(
+                                width=48, height=48, border_radius=ft.border_radius.all(24),
+                                bgcolor=day_color[infos['day']]['fg_color'], alignment=ft.alignment.center,
+                                content=ft.Icon(subject_icon, color=ft.Colors.WHITE, size=24)
+                            ),
+                            ft.Text(mat, size=18, font_family="PEB")
+                        ]
+                    ),
+                    ft.Divider(height=10),
+                    ft.Column(
+                        spacing=5,
                         controls=[
                             ft.Row(
                                 controls=[
-                                    ft.Icon('timer_outlined', size=18, color='black45'),
-                                    ft.Text(infos['slot'], font_family='PPM', size=14),
+                                    ft.Icon(ft.Icons.CALENDAR_TODAY_ROUNDED, color=ft.Colors.BLACK, size=16),
+                                    ft.Text(languages[self.cp.lang][self.infos['day']], size=16, font_family='PPM'),
                                 ]
                             ),
-                            ft.Row([self.assign_bt, self.delete_bt])
-                        ], alignment=ft.MainAxisAlignment.CENTER
+                            ft.Row(
+                                controls=[
+                                    ft.Icon(ft.Icons.SCHEDULE_ROUNDED, color=ft.Colors.BLACK, size=16),
+                                    ft.Text(self.infos['slot'],size=16,font_family='PPM'),
+                                ]
+                            ),
+                            ft.Row(
+                                controls=[
+                                    ft.Icon(ft.Icons.ROOFING_ROUNDED, color=ft.Colors.BLACK, size=16),
+                                    ft.Text(class_code, size=16, font_family='PPM'),
+                                ]
+                            ),
+                            ft.Row(
+                                controls=[
+                                    ft.Icon(ft.Icons.PERSON_ROUNDED, color=ft.Colors.BLACK, size=16),
+                                    ft.Text(prof, size=16, font_family='PPM'),
+                                ]
+                            ),
+                        ]
                     ),
-                    ft.Container(
-                        padding=8, border_radius=8, expand=True,
-                        bgcolor=self.visible_bgcolor,
-                        content=ft.Row(
-                            controls=[
-                                ft.Text(f"{self.mat} - {self.class_code}", size=14, font_family="PPL", color="white"),
-
-                            ],
-                            alignment=ft.MainAxisAlignment.CENTER
-                        ), tooltip=f"{languages[self.cp.lang]['day']}: {languages[self.cp.lang][infos['day']]}\n"
-                                   f"{languages[self.cp.lang]['slot']}: {infos['slot']}\n"
-                                   f"{languages[self.cp.lang]['class']}: {infos['class_code']}\n"
-                                   f"{languages[self.cp.lang]['subject']}: {infos['subject_name']}\n"
-                                   f"{languages[self.cp.lang]['teacher']}: {infos['teacher_name']}\n"
-                    ),
+                    ft.Divider(height=10),
+                    ft.Row(
+                        [self.assign_bt, self.delete_bt], alignment=ft.MainAxisAlignment.CENTER
+                    )
                 ]
             )
         )
@@ -627,146 +743,134 @@ class SlotCard(ft.Container):
 
     def add_affectation(self, e):
         self.cp.new_prof_id.value = self.cp.prof_id.value
-
         self.cp.new_day.value = e.control.data['day']
         self.cp.new_day_display.value = languages[self.cp.lang][e.control.data['day']]
         self.cp.new_slot.value = e.control.data['slot']
         self.cp.new_day.update()
         self.cp.new_day_display.update()
         self.cp.new_slot.update()
-
-        self.cp.new_affectation_window.scale = 1
-        self.cp.new_affectation_window.update()
-        self.cp.main_window.opacity = 0.2
-        self.cp.main_window.disabled = True
-        self.cp.main_window.update()
-        self.cp.cp.cp.left_menu.opacity = 0.2
-        self.cp.cp.cp.left_menu.disabled = True
-        self.cp.cp.cp.left_menu.update()
+        self.cp.show_one_window(self.cp.new_affectation_window)
 
     async def delete_affectation(self, e):
-        role = self.cp.cp.page.client_storage.get('role')
-        print(role)
+        resp = supabase_client.table('affectations').update(
+            {
+                "teacher_id": None, "subject_id": None
+            }
+        ).eq("day", self.infos['day']).eq('slot', self.infos['slot']).eq("year_id", self.infos['year_id']).execute()
 
-        if role in ['principal', 'préfet']:
-            # supprimer affectation
-            resp = supabase_client.table('affectations').update(
-                {
-                    "teacher_id": None, "subject_id": None
-                }
-            ).eq("day", self.infos['day']).eq('slot', self.infos['slot']).eq("year_id", self.infos['year_id']).execute()
+        self.cp.cp.box.title.value = languages[self.cp.lang]['success']
+        self.cp.cp.cp.message.value = languages[self.cp.lang]['free time slot']
+        self.cp.cp.icon_message.name = ft.Icons.CHECK_CIRCLE
+        self.cp.cp.icon_message.color = ft.Colors.LIGHT_GREEN
+        self.cp.cp.cp.box.open = True
+        self.cp.cp.cp.box.update()
 
-            self.cp.cp.cp.box.title.value = languages[self.cp.lang]['success']
-            self.cp.cp.cp.message.value = languages[self.cp.lang]['free time slot']
-            self.cp.cp.icon_message.name = ft.Icons.CHECK_CIRCLE
-            self.cp.cp.icon_message.color = ft.Colors.LIGHT_GREEN
-            self.cp.cp.cp.box.open = True
-            self.cp.cp.cp.box.update()
-
-            await self.cp.refresh_view()
-
-        else:
-            self.cp.cp.cp.box.title.value = languages[self.cp.lang]['error']
-            self.cp.cp.cp.message.value = languages[self.cp.lang]['error rights']
-            self.cp.cp.icon_message.name = ft.Icons.INFO_SHARP
-            self.cp.cp.icon_message.color = ft.Colors.RED
-            self.cp.cp.cp.box.open = True
-            self.cp.cp.cp.box.update()
+        await self.cp.refresh_view()
 
     def free_affectation(self, e):
         self.run_async_in_thread(self.delete_affectation(e))
 
 
-class SlotCardRoom(ft.Container):
+class SlotCardRoom(ft.Card):
     def __init__(self, cp: object, infos: dict):
         super().__init__(
-            border_radius=16, bgcolor = day_color[infos['day']]['bg_color'],
-            # border=ft.border.all(1, 'black')
+            elevation=5,
+            shape=ft.RoundedRectangleBorder(radius=16),
         )
+        self.infos = infos
         self.cp = cp
         self.infos = infos
-        self.delete_bt = MyMiniIcon('delete_outlined', languages[self.cp.lang]['free slot'], "black", self.infos, self.delete_affectation)
-        self.assign_bt = MyMiniIcon(ft.Icons.ADD, languages[self.cp.lang]['assign slot'], "black", self.infos, self.add_affectation)
-        self.check = ft.Checkbox()
-        role = self.cp.cp.page.client_storage.get('role')
+
+        prof = "-" if not infos['teacher_id'] else infos['teacher_name']
+        mat = "-" if not infos['subject_id'] else infos['subject_short_name']
+        class_code = "-" if not infos['class_id'] else infos['class_code']
+        subject_icon = short_names_icons[self.infos['subject_short_name']] if self.infos['subject_id'] else None
+
+        self.delete_bt = MyColorButton(
+            languages[self.cp.lang]['free slot'], None, day_color[infos['day']]['fg_color'],
+            170, self.delete_affectation
+        )
+        self.assign_bt = MyColorButton(
+            languages[self.cp.lang]['assign slot'], None, day_color[infos['day']]['fg_color'],
+            170, self.add_affectation
+        )
+
+        for widget in (self.assign_bt, self.delete_bt):
+            widget.data = self.infos
+
+        role = self.cp.cp.role
 
         if infos['status']:
             if role not in ['principal', 'préfet']:
-                self.status_icon = ft.Icons.INDETERMINATE_CHECK_BOX_OUTLINED
-                self.status_color = 'red'
                 self.delete_bt.visible = False
                 self.assign_bt.visible = False
-                self.check.disabled = True
-                self.visible_bgcolor = day_color[infos['day']]['fg_color']
-
             else:
-                self.status_icon = ft.Icons.INDETERMINATE_CHECK_BOX_OUTLINED
-                self.status_color = 'red'
                 self.delete_bt.visible = True
                 self.assign_bt.visible = False
-                self.check.disabled = True
-                self.visible_bgcolor = day_color[infos['day']]['fg_color']
+
+            bg_color = day_color[infos['day']]['bg_color']
 
         else:
             if role not in ['principal', 'préfet']:
-                self.status_icon = ft.Icons.CHECK_CIRCLE
-                self.status_color = 'green'
                 self.delete_bt.visible = False
                 self.assign_bt.visible = False
-                self.check.disabled = False
-                self.visible_bgcolor = 'white'
-
             else:
-                self.status_icon = ft.Icons.CHECK_CIRCLE
-                self.status_color = 'green'
                 self.delete_bt.visible = False
                 self.assign_bt.visible = True
-                self.check.disabled = False
-                self.visible_bgcolor = 'white'
 
-        self.prof = "" if infos['teacher_id'] is None else infos['teacher_name']
-        self.mat = "" if infos['subject_id'] is None else infos['subject_short_name']
-        self.class_code = "" if infos['class_id'] is None else infos['class_code']
+            bg_color = ft.Colors.WHITE
 
         self.content = ft.Container(
-            border_radius=16, padding=10, width=190,
+            padding=ft.padding.only(20, 10, 20, 10),
+            border_radius=16, width=260, height=300, bgcolor=bg_color,
             content=ft.Column(
+                spacing=10,
                 controls=[
-                    ft.Container(
-                        padding=5, border_radius=8, bgcolor='white', content=ft.Row(
-                            controls=[
-                                ft.Icon(self.status_icon, size=18, color=self.status_color),
-                                ft.Text(languages[self.cp.lang][infos['day']].upper(), size=14, font_family="PPM"),
-                            ], alignment=ft.MainAxisAlignment.CENTER
-                        )
-                    ),
                     ft.Row(
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                        controls=[
+                            ft.Container(
+                                width=48, height=48, border_radius=ft.border_radius.all(24),
+                                bgcolor=day_color[infos['day']]['fg_color'], alignment=ft.alignment.center,
+                                content=ft.Icon(subject_icon, color=ft.Colors.WHITE, size=24)
+                            ),
+                            ft.Text(mat, size=18, font_family="PEB")
+                        ]
+                    ),
+                    ft.Divider(height=10),
+                    ft.Column(
+                        spacing=5,
                         controls=[
                             ft.Row(
                                 controls=[
-                                    ft.Icon('timer_outlined', size=18, color='black45'),
-                                    ft.Text(infos['slot'], font_family='PPM', size=14),
+                                    ft.Icon(ft.Icons.CALENDAR_TODAY_ROUNDED, color=ft.Colors.BLACK, size=16),
+                                    ft.Text(languages[self.cp.lang][self.infos['day']], size=16, font_family='PPM'),
                                 ]
                             ),
-                            ft.Row([self.assign_bt, self.delete_bt])
-                        ], alignment=ft.MainAxisAlignment.CENTER
+                            ft.Row(
+                                controls=[
+                                    ft.Icon(ft.Icons.SCHEDULE_ROUNDED, color=ft.Colors.BLACK, size=16),
+                                    ft.Text(self.infos['slot'], size=16, font_family='PPM'),
+                                ]
+                            ),
+                            ft.Row(
+                                controls=[
+                                    ft.Icon(ft.Icons.ROOFING_ROUNDED, color=ft.Colors.BLACK, size=16),
+                                    ft.Text(class_code, size=16, font_family='PPM'),
+                                ]
+                            ),
+                            ft.Row(
+                                controls=[
+                                    ft.Icon(ft.Icons.PERSON_ROUNDED, color=ft.Colors.BLACK, size=16),
+                                    ft.Text(prof, size=16, font_family='PPM'),
+                                ]
+                            ),
+                        ]
                     ),
-                    ft.Container(
-                        padding=8, border_radius=8, expand=True,
-                        bgcolor=self.visible_bgcolor,
-                        content=ft.Row(
-                            controls=[
-                                ft.Text(f"{self.mat} - {self.prof}", size=14, font_family="PPL", color="white"),
-
-                            ],
-                            alignment=ft.MainAxisAlignment.CENTER
-                        ),
-                        tooltip=f"{languages[self.cp.lang]['day']}: {languages[self.cp.lang][infos['day']]}\n"
-                                   f"{languages[self.cp.lang]['slot']}: {infos['slot']}\n"
-                                   f"{languages[self.cp.lang]['class']}: {infos['class_code']}\n"
-                                   f"{languages[self.cp.lang]['subject']}: {infos['subject_name']}\n"
-                                   f"{languages[self.cp.lang]['teacher']}: {infos['teacher_name']}\n"
-                    ),
+                    ft.Divider(height=10),
+                    ft.Row(
+                        [self.assign_bt, self.delete_bt], alignment=ft.MainAxisAlignment.CENTER
+                    )
                 ]
             )
         )
@@ -786,32 +890,22 @@ class SlotCardRoom(ft.Container):
         role = self.cp.cp.page.client_storage.get('role')
 
         if role in ['principal', 'préfet']:
-            self.cp.new_affectation_id = e.control.data['id']
-            self.cp.new_day.value = e.control.data['day']
-            self.cp.new_day_display.value = languages[self.cp.lang][e.control.data['day']]
-            self.cp.new_slot.value = e.control.data['slot']
-            self.cp.new_day.update()
-            self.cp.new_day_display.update()
-            self.cp.new_slot.update()
-
-            self.cp.new_affectation_window.scale = 1
-            self.cp.new_affectation_window.update()
-            self.cp.main_window.opacity = 0.2
-            self.cp.main_window.disabled = True
-            self.cp.main_window.update()
-            self.cp.cp.cp.left_menu.opacity = 0.2
-            self.cp.cp.cp.left_menu.disabled = True
-            self.cp.cp.cp.left_menu.update()
+            self.cp.c_new_affectation_id = e.control.data['id']
+            self.cp.c_new_day.value = e.control.data['day']
+            self.cp.c_new_day_display.value = languages[self.cp.lang][e.control.data['day']]
+            self.cp.c_new_slot.value = e.control.data['slot']
+            self.cp.c_new_day.update()
+            self.cp.c_new_day_display.update()
+            self.cp.c_new_slot.update()
+            self.cp.show_one_window(self.cp.c_new_affectation_window)
 
         else:
-            self.cp.cp.cp.box.title.value = languages[self.cp.lang]['error']
-            self.cp.cp.cp.message.value = languages[self.cp.lang]['error rights']
+            self.cp.cp.box.title.value = languages[self.cp.lang]['error']
+            self.cp.cp.message.value = languages[self.cp.lang]['error rights']
             self.cp.cp.icon_message.name = ft.Icons.INFO_SHARP
             self.cp.cp.icon_message.color = ft.Colors.RED
-            self.cp.cp.cp.box.open = True
-            self.cp.cp.cp.box.update()
-
-
+            self.cp.cp.box.open = True
+            self.cp.cp.box.update()
 
     def delete_affectation(self, e):
         role = self.cp.cp.page.client_storage.get('role')
@@ -831,7 +925,7 @@ class SlotCardRoom(ft.Container):
             self.cp.cp.cp.box.open = True
             self.cp.cp.cp.box.update()
 
-            self.cp.refresh_view()
+            self.cp.c_refresh_view()
 
         else:
             self.cp.cp.cp.box.title.value = languages[self.cp.lang]['error']
@@ -840,6 +934,162 @@ class SlotCardRoom(ft.Container):
             self.cp.cp.icon_message.color = ft.Colors.RED
             self.cp.cp.cp.box.open = True
             self.cp.cp.cp.box.update()
+
+
+
+# class SlotCardRoom(ft.Container):
+#     def __init__(self, cp: object, infos: dict):
+#         super().__init__(
+#             border_radius=16, bgcolor = day_color[infos['day']]['bg_color'],
+#             # border=ft.border.all(1, 'black')
+#         )
+#         self.cp = cp
+#         self.infos = infos
+#         self.delete_bt = MyMiniIcon('delete_outlined', languages[self.cp.lang]['free slot'], "black", self.infos, self.delete_affectation)
+#         self.assign_bt = MyMiniIcon(ft.Icons.ADD, languages[self.cp.lang]['assign slot'], "black", self.infos, self.add_affectation)
+#         self.check = ft.Checkbox()
+#         role = self.cp.cp.page.client_storage.get('role')
+#
+#         if infos['status']:
+#             if role not in ['principal', 'préfet']:
+#                 self.status_icon = ft.Icons.INDETERMINATE_CHECK_BOX_OUTLINED
+#                 self.status_color = 'red'
+#                 self.delete_bt.visible = False
+#                 self.assign_bt.visible = False
+#                 self.check.disabled = True
+#                 self.visible_bgcolor = day_color[infos['day']]['fg_color']
+#
+#             else:
+#                 self.status_icon = ft.Icons.INDETERMINATE_CHECK_BOX_OUTLINED
+#                 self.status_color = 'red'
+#                 self.delete_bt.visible = True
+#                 self.assign_bt.visible = False
+#                 self.check.disabled = True
+#                 self.visible_bgcolor = day_color[infos['day']]['fg_color']
+#
+#         else:
+#             if role not in ['principal', 'préfet']:
+#                 self.status_icon = ft.Icons.CHECK_CIRCLE
+#                 self.status_color = 'green'
+#                 self.delete_bt.visible = False
+#                 self.assign_bt.visible = False
+#                 self.check.disabled = False
+#                 self.visible_bgcolor = 'white'
+#
+#             else:
+#                 self.status_icon = ft.Icons.CHECK_CIRCLE
+#                 self.status_color = 'green'
+#                 self.delete_bt.visible = False
+#                 self.assign_bt.visible = True
+#                 self.check.disabled = False
+#                 self.visible_bgcolor = 'white'
+#
+#         self.prof = "" if infos['teacher_id'] is None else infos['teacher_name']
+#         self.mat = "" if infos['subject_id'] is None else infos['subject_short_name']
+#         self.class_code = "" if infos['class_id'] is None else infos['class_code']
+#
+#         self.content = ft.Container(
+#             border_radius=16, padding=10, width=190,
+#             content=ft.Column(
+#                 controls=[
+#                     ft.Container(
+#                         padding=5, border_radius=8, bgcolor='white', content=ft.Row(
+#                             controls=[
+#                                 ft.Icon(self.status_icon, size=18, color=self.status_color),
+#                                 ft.Text(languages[self.cp.lang][infos['day']].upper(), size=14, font_family="PPM"),
+#                             ], alignment=ft.MainAxisAlignment.CENTER
+#                         )
+#                     ),
+#                     ft.Row(
+#                         controls=[
+#                             ft.Row(
+#                                 controls=[
+#                                     ft.Icon('timer_outlined', size=18, color='black45'),
+#                                     ft.Text(infos['slot'], font_family='PPM', size=14),
+#                                 ]
+#                             ),
+#                             ft.Row([self.assign_bt, self.delete_bt])
+#                         ], alignment=ft.MainAxisAlignment.CENTER
+#                     ),
+#                     ft.Container(
+#                         padding=8, border_radius=8, expand=True,
+#                         bgcolor=self.visible_bgcolor,
+#                         content=ft.Row(
+#                             controls=[
+#                                 ft.Text(f"{self.mat} - {self.prof}", size=14, font_family="PPL", color="white"),
+#
+#                             ],
+#                             alignment=ft.MainAxisAlignment.CENTER
+#                         ),
+#                         tooltip=f"{languages[self.cp.lang]['day']}: {languages[self.cp.lang][infos['day']]}\n"
+#                                    f"{languages[self.cp.lang]['slot']}: {infos['slot']}\n"
+#                                    f"{languages[self.cp.lang]['class']}: {infos['class_code']}\n"
+#                                    f"{languages[self.cp.lang]['subject']}: {infos['subject_name']}\n"
+#                                    f"{languages[self.cp.lang]['teacher']}: {infos['teacher_name']}\n"
+#                     ),
+#                 ]
+#             )
+#         )
+#
+#     @staticmethod
+#     def run_async_in_thread(coro):
+#         def runner():
+#             loop = asyncio.new_event_loop()
+#             asyncio.set_event_loop(loop)
+#             loop.run_until_complete(coro)
+#             loop.close()
+#
+#         thread = threading.Thread(target=runner)
+#         thread.start()
+#
+#     def add_affectation(self, e):
+#         role = self.cp.cp.page.client_storage.get('role')
+#
+#         if role in ['principal', 'préfet']:
+#             self.cp.new_affectation_id = e.control.data['id']
+#             self.cp.new_day.value = e.control.data['day']
+#             self.cp.new_day_display.value = languages[self.cp.lang][e.control.data['day']]
+#             self.cp.new_slot.value = e.control.data['slot']
+#             self.cp.new_day.update()
+#             self.cp.new_day_display.update()
+#             self.cp.new_slot.update()
+#             self.cp.show_one_window(self.cp.new_affectation_window)
+#
+#         else:
+#             self.cp.cp.cp.box.title.value = languages[self.cp.lang]['error']
+#             self.cp.cp.cp.message.value = languages[self.cp.lang]['error rights']
+#             self.cp.cp.icon_message.name = ft.Icons.INFO_SHARP
+#             self.cp.cp.icon_message.color = ft.Colors.RED
+#             self.cp.cp.cp.box.open = True
+#             self.cp.cp.cp.box.update()
+#
+#     def delete_affectation(self, e):
+#         role = self.cp.cp.page.client_storage.get('role')
+#
+#         if role in ['principal', 'préfet']:
+#             # supprimer affectation
+#             resp = supabase_client.table('affectations').update(
+#                 {
+#                     "teacher_id": None, "subject_id": None
+#                 }
+#             ).eq('id', self.infos['id']).execute()
+#
+#             self.cp.cp.cp.box.title.value = languages[self.cp.lang]['success']
+#             self.cp.cp.cp.message.value = languages[self.cp.lang]['free time slot']
+#             self.cp.cp.icon_message.name = ft.Icons.CHECK_CIRCLE
+#             self.cp.cp.icon_message.color = ft.Colors.LIGHT_GREEN
+#             self.cp.cp.cp.box.open = True
+#             self.cp.cp.cp.box.update()
+#
+#             self.cp.refresh_view()
+#
+#         else:
+#             self.cp.cp.cp.box.title.value = languages[self.cp.lang]['error']
+#             self.cp.cp.cp.message.value = languages[self.cp.lang]['error rights']
+#             self.cp.cp.icon_message.name = ft.Icons.INFO_SHARP
+#             self.cp.cp.icon_message.color = ft.Colors.RED
+#             self.cp.cp.cp.box.open = True
+#             self.cp.cp.cp.box.update()
 
 
 class BoxStudentNote(ft.Container):
@@ -888,10 +1138,10 @@ class OneTeacher(ft.Card):
 
         if self.infos['is_head_teacher']:
             assign_icon = ft.Icons.ASSIGNMENT_IND
-            assign_color = ft.Colors.BLACK
+            assign_bg_color = ft.Colors.BLUE_500
         else:
             assign_icon = ft.Icons.PERSON
-            assign_color = ft.Colors.GREY
+            assign_bg_color = ft.Colors.TEAL_500
 
         gender_icon = "man" if infos['gender'] == 'M' else "woman"
         gender_color = "blue" if infos['gender'] == 'M' else "pink"
@@ -901,14 +1151,19 @@ class OneTeacher(ft.Card):
 
         self.content = ft.Container(
             border_radius=16, bgcolor='white', on_click=self.open_edit_teacher_window,
-            width=220, height=260, padding=ft.padding.only(10, 20, 10, 20),
+            padding=ft.padding.only(10, 20, 10, 20),
             content=ft.Column(
                 controls=[
-                    ft.CircleAvatar(radius=30),
+                    ft.Container(
+                        width=48, height=48, border_radius=ft.border_radius.all(24),
+                        alignment=ft.alignment.center, bgcolor=assign_bg_color,
+                        content=ft.Icon(assign_icon, color='white', size=24)
+                    ),
+                    ft.Divider(height=10, thickness=1),
                     ft.Column(
                         controls=[
                             ft.Text(
-                                f"{infos['name']}", size=16, font_family='PPM',
+                                f"{infos['name']}", size=18, font_family='PEB',
                             ),
                             ft.Text(
                                 f"{infos['surname']}", size=14, font_family="PPR"
@@ -918,13 +1173,19 @@ class OneTeacher(ft.Card):
                     ),
                     ft.Divider(height=1, thickness=1),
                     ft.Row(
+                        controls=[ft.Text('Actions', size=16, font_family='PPM')],
+                        alignment=ft.MainAxisAlignment.CENTER
+                    ),
+                    ft.Row(
                         controls=[
-                            MyMiniIcon('edit_outlined', '', 'black', infos, self.open_edit_teacher_window),
                             MyMiniIcon(
-                                'calendar_month', '', 'black', infos,
+                                'edit_outlined', '', 'blue',
+                                infos, self.open_edit_teacher_window),
+                            MyMiniIcon(
+                                'calendar_month', '', ft.Colors.BLUE_GREY, infos,
                                 self.open_schedule_window
                             )
-                        ], alignment=ft.MainAxisAlignment.END
+                        ], alignment=ft.MainAxisAlignment.CENTER
                     )
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER
             )
@@ -986,6 +1247,8 @@ class OneTeacher(ft.Card):
         if role not in ['admin', 'principal']:
             self.cp.cp.box.title.value = languages[self.lang]['error']
             self.cp.cp.message.value = languages[self.lang]['error rights']
+            self.cp.cp.icon_message.name = ft.Icons.INFO_ROUNDED
+            self.cp.cp.icon_message.color = 'red'
             self.cp.cp.box.open = True
             self.cp.cp.box.update()
         else:
@@ -1027,6 +1290,16 @@ class OneTeacher(ft.Card):
         self.cp.edit_subject.value = None
 
         self.cp.hide_one_window(self.cp.edit_teacher_window)
+
+
+class ColoredIcon(ft.Container):
+    def __init__(self, my_icon: str,color: str, bg_color: str):
+        super().__init__(
+            bgcolor=bg_color, alignment=ft.alignment.center, padding=5,
+            # border=ft.border.all(1, color),
+            width=30, height=30, shape=ft.BoxShape.CIRCLE,
+            content=ft.Icon(my_icon, size=14, color=color), scale=0.9
+        )
 
 
 

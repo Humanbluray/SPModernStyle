@@ -27,8 +27,8 @@ class Teachers(ft.Container):
         )
         self.table = ft.GridView(
             expand=True,
-            max_extent=220,
-            child_aspect_ratio=0.86,
+            max_extent=250,
+            child_aspect_ratio=0.7,
             spacing=15,
             run_spacing=15
         )
@@ -666,7 +666,7 @@ class Teachers(ft.Container):
 
         self.sc_container.controls.clear()
         self.sc_container.controls = [
-            ft.Text(languages[self.cp.lang]['loading screen'], size=18, font_family='PPR'),
+            ft.Text(languages[self.lang]['loading screen'], size=18, font_family='PPR'),
             ft.ProgressBar(color=BASE_COLOR)
         ]
         self.cp.page.update()
