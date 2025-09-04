@@ -5,6 +5,7 @@ from translations.translations import languages
 from views.tabs.students import Students
 from views.tabs.classes import Classes
 from views.tabs.teachers import Teachers
+from views.tabs.schedule import Schedule
 
 
 roles = {
@@ -81,6 +82,11 @@ class NavBar(ft.Column):
         elif e.control.name.value.lower() in (
                 languages['en']['menu teachers'].lower(), languages['fr']['menu teachers'].lower()):
             self.cp.my_content.controls.append(Teachers(self.cp))
+            self.cp.page.update()
+
+        elif e.control.name.value.lower() in (
+                languages['en']['menu time table'].lower(), languages['fr']['menu time table'].lower()):
+            self.cp.my_content.controls.append(Schedule(self.cp))
             self.cp.page.update()
 
         else:

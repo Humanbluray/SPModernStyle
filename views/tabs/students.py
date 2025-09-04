@@ -40,10 +40,10 @@ class Students(ft.Container):
         )
         self.table = ft.GridView(
             expand=True,
-            max_extent=220,
-            child_aspect_ratio=0.85,
-            spacing=10,
-            run_spacing=10
+            max_extent=250,
+            child_aspect_ratio=0.8,
+            spacing=20,
+            run_spacing=20
         )
 
         self.active_sequence = ft.Text(size=13, font_family='PPM')
