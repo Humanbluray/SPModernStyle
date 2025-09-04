@@ -196,9 +196,9 @@ class Classes(ft.Container):
         )
 
         # Details window...
-        self.det_main_teacher = ft.Text(size=16, font_family='PPM')
-        self.det_count = ft.Text(size=16, font_family='PPM')
-        self.det_level = ft.Text(size=16, font_family='PPM')
+        self.det_main_teacher = ft.Text(size=20, font_family='PPM')
+        self.det_count = ft.Text(size=20, font_family='PPM')
+        self.det_level = ft.Text(size=20, font_family='PPM')
 
         self.det_table_registered = ft.DataTable(
             **datatable_style, columns=[

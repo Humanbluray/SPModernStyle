@@ -677,10 +677,10 @@ class Students(ft.Container):
         )
 
         # discipline report window...
-        self.report_name = ft.Text(size=16, font_family='PPM')
-        self.report_surname = ft.Text(size=16, font_family='PPM', color='black54')
+        self.report_name = ft.Text(size=20, font_family='PPM')
+        self.report_surname = ft.Text(size=20, font_family='PPM', color='black54')
         self.report_image = ft.CircleAvatar(radius=30)
-        self.report_class = ft.Text(size=16, font_family="PPB")
+        self.report_class = ft.Text(size=20, font_family="PPB")
         self.report_table = ft.DataTable(
             **datatable_style, columns=[
                 ft.DataColumn(
@@ -1515,7 +1515,7 @@ class Students(ft.Container):
                 controls=[
                     ft.Row([self.report_name, self.report_surname]),
                     ft.Text(" | "),
-                    ft.Row([ft.Icon("roofing", size=20, color='black'), self.report_class])
+                    ft.Row([ft.Icon("roofing", size=24, color='black'), self.report_class])
                 ], spacing=20
             ),
             ft.Row(

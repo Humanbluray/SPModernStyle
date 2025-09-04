@@ -453,6 +453,26 @@ async def get_student_fees_summary_by_part(access_token:str, fees_part: str, yea
         return r.json()
 
 
+async def get_class_code_by_id_async(class_id: str, access_token: str) -> str | None:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{url}/rest/v1/classes",
+            params={
+                "select": "code",
+                "id": f"eq.{class_id}",
+                "limit": 1
+            },
+            headers={
+                "apikey": key,
+                "Authorization": f"Bearer {access_token}"
+            }
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        if data:
+            return data[0].get("code")
+        return None
 
 
 

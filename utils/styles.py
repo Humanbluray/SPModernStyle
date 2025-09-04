@@ -94,6 +94,22 @@ intern_ct_style: dict = dict(
     )
 )
 
+# _____style pour les top containers_____
+top_ct_style: dict = dict(
+    bgcolor="white", padding=20, border=ft.border.only(
+        bottom=ft.BorderSide(1, MAIN_COLOR)
+    ),
+    border_radius=ft.border_radius.only(top_left=8, top_right=8),
+)
+
+# _____style pour les bottom containers_____
+bottom_ct_style: dict = dict(
+    bgcolor="white", padding=20, border=ft.border.only(
+        top=ft.BorderSide(1, MAIN_COLOR)
+    ), expand=True,
+    border_radius=ft.border_radius.only(bottom_left=8, bottom_right=8),
+)
+
 # _____Style pour les datatables_____
 datatable_style: dict = dict(
     heading_row_color=ACCENT_PLUS_COLOR,

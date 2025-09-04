@@ -361,7 +361,8 @@
         "welcome to SP": "Bienvenue sur School Pilot",
         "xls format": "extraction excel",
         "year": "année",
-        "yyyy": "AAAA"
+        "yyyy": "AAAA",
+        "display KPI": "afficher KPI"
     },
     "en": {
         "1- new school year": "1- new school year",
@@ -725,6 +726,7 @@
         "welcome to SP": "Welcome to School Pilot",
         "xls format": "excel extraction",
         "year": "year",
-        "yyyy": "YYYY"
+        "yyyy": "YYYY",
+        "display KPI": "display KPI"
     }
 }
