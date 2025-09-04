@@ -1,4 +1,3 @@
-from utils.couleurs import *
 from components import MyButton, MyTextButton, MyMiniIcon
 from services.async_functions.general_functions import *
 from services.async_functions.class_functions import *

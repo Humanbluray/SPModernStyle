@@ -61,7 +61,7 @@ class Schedule(ft.Container):
                             self.menu_button,
                             ft.Row(
                                 controls=[
-                                    ft.Text(languages[lang]['menu students'].capitalize(), size=24, font_family="PEB"),
+                                    ft.Text(languages[lang]['menu time table'].capitalize(), size=24, font_family="PEB"),
                                 ], spacing=0
                             )
                         ]
