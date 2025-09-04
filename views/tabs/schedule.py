@@ -133,10 +133,7 @@ class Schedule(ft.Container):
                     expand=True, scroll=ft.ScrollMode.AUTO,
                     spacing=0, controls=[
                         ft.Container(
-                            bgcolor="white", padding=20, border=ft.border.only(
-                                bottom=ft.BorderSide(1, MAIN_COLOR)
-                            ),
-                            border_radius=ft.border_radius.only(top_left=8, top_right=8),
+                            **top_ct_style,
                             content=ft.Row(
                                 controls=[
                                     ft.Text(languages[lang]['new affectation'], size=20, font_family='PPB'),
@@ -148,10 +145,7 @@ class Schedule(ft.Container):
                             )
                         ),
                         ft.Container(
-                            bgcolor="white", padding=20, border=ft.border.only(
-                                top=ft.BorderSide(1, MAIN_COLOR)
-                            ), expand=True,
-                            border_radius=ft.border_radius.only(bottom_left=8, bottom_right=8),
+                            **bottom_ct_style,
                             content=ft.Column(
                                 expand=True, scroll=ft.ScrollMode.AUTO,
                                 controls=[
@@ -243,10 +237,7 @@ class Schedule(ft.Container):
                     expand=True, scroll=ft.ScrollMode.AUTO,
                     controls=[
                         ft.Container(
-                            bgcolor="white", padding=20, border=ft.border.only(
-                                bottom=ft.BorderSide(1, MAIN_COLOR)
-                            ),
-                            border_radius=ft.border_radius.only(top_left=8, top_right=8),
+                            **top_ct_style,
                             content=ft.Row(
                                 controls=[
                                     ft.Text(languages[lang]['affectations details'], size=20, font_family='PPB'),
@@ -258,10 +249,7 @@ class Schedule(ft.Container):
                             )
                         ),
                         ft.Container(
-                            bgcolor="white", padding=20, border=ft.border.only(
-                                top=ft.BorderSide(1, MAIN_COLOR)
-                            ), expand=True,
-                            border_radius=ft.border_radius.only(bottom_left=8, bottom_right=8),
+                            **bottom_ct_style,
                             content=ft.Column(
                                 expand=True, scroll=ft.ScrollMode.AUTO,
                                 controls=[self.prof_details_view]
@@ -326,10 +314,7 @@ class Schedule(ft.Container):
                     expand=True, scroll=ft.ScrollMode.AUTO,
                     controls=[
                         ft.Container(
-                            bgcolor="white", padding=20, border=ft.border.only(
-                                bottom=ft.BorderSide(1, MAIN_COLOR)
-                            ),
-                            border_radius=ft.border_radius.only(top_left=8, top_right=8),
+                            **top_ct_style,
                             content=ft.Row(
                                 controls=[
                                     ft.Text(languages[lang]['new affectation'], size=20, font_family='PPB'),
@@ -341,10 +326,7 @@ class Schedule(ft.Container):
                             )
                         ),
                         ft.Container(
-                            bgcolor="white", padding=20, border=ft.border.only(
-                                top=ft.BorderSide(1, MAIN_COLOR)
-                            ), expand=True,
-                            border_radius=ft.border_radius.only(bottom_left=8, bottom_right=8),
+                            **bottom_ct_style,
                             content=ft.Column(
                                 controls=[
                                     ft.Row([self.c_new_prof], visible=False),
@@ -459,10 +441,7 @@ class Schedule(ft.Container):
                     expand=True, scroll=ft.ScrollMode.AUTO,
                     controls=[
                         ft.Container(
-                            bgcolor="white", padding=20, border=ft.border.only(
-                                bottom=ft.BorderSide(1, MAIN_COLOR)
-                            ),
-                            border_radius=ft.border_radius.only(top_left=8, top_right=8),
+                            **top_ct_style,
                             content=ft.Row(
                                 controls=[
                                     ft.Text(languages[lang]['affectations details'].capitalize(), size=20, font_family='PPB'),
@@ -474,10 +453,7 @@ class Schedule(ft.Container):
                             )
                         ),
                         ft.Container(
-                            bgcolor="white", padding=20, border=ft.border.only(
-                                top=ft.BorderSide(1, MAIN_COLOR)
-                            ), expand=True,
-                            border_radius=ft.border_radius.only(bottom_left=8, bottom_right=8),
+                            **bottom_ct_style,
                             content=ft.Column(
                                 controls=[
                                     ft.Row(
