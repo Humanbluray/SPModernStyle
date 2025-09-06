@@ -67,21 +67,17 @@ async def get_sequence_averages_with_details(access_token: str, year_id: str,) -
     return result
 
 
-async def student_monthly_averages(access_token: str, year_id: str, sequence: str, page_number: int):
+async def student_monthly_averages(access_token: str, year_id: str, sequence: str):
     """
-
     :param access_token:
     :param year_id:
     :param sequence:
-    :param page_number:
     :return:
     """
-    decalage = page_number * 100
-    query_url = f"{url}/rest/v1/student_sequence_report_with_rank"
+    query_url = f"{url}/rest/v1/student_sequence_report"
     params = {
         "select": "*",
-        "limit": 100,
-        "offset": decalage,
+        "limit": 5000,
         "year_id": f"eq.{year_id}",
         "sequence": f"eq.{sequence}"
     }
@@ -280,7 +276,7 @@ async def get_student_sequence_detail(access_token: str, student_id: str, sequen
     :param year_id:
     :return:
     """
-    query_url = f"{url}/rest/v1/student_sequence_report_with_rank"
+    query_url = f"{url}/rest/v1/student_sequence_report"
     headers = {
         "apikey": key,
         "Authorization": f"Bearer {access_token}",

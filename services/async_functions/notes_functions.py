@@ -82,15 +82,12 @@ async def get_all_notes_with_details(
 
 
 async def get_all_notes(
-    page_number: int, access_token: str, year_id: str,
+    access_token: str, year_id: str,
 ) -> list[dict]:
     """"""
-    decalage = page_number * 100
     query_url = f"{url}/rest/v1/notes_view"
     params = {
         "select": "*",
-        "limit": 100,
-        "offset": decalage,
         "year_id": f"eq.{year_id}",
     }
     headers = {

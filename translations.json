@@ -362,7 +362,8 @@
         "xls format": "extraction excel",
         "year": "année",
         "yyyy": "AAAA",
-        "display KPI": "afficher KPI"
+        "display KPI": "afficher KPI",
+        "individual statistics": "statistiques individuelles"
     },
     "en": {
         "1- new school year": "1- new school year",
@@ -727,6 +728,7 @@
         "xls format": "excel extraction",
         "year": "year",
         "yyyy": "YYYY",
-        "display KPI": "display KPI"
+        "display KPI": "display KPI",
+        "individual statistics": "individual statistics"
     }
 }

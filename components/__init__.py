@@ -1,13 +1,10 @@
-import flet as ft
-import flet.core.alignment
-from flet.core.map.rich_attribution import AttributionAlignment
-
 from utils.couleurs import *
 from translations.translations import languages
 from utils.styles import drop_style, login_style, outline_style
 from services.supabase_client import supabase_client
 from services.async_functions.students_functions import *
 from services.async_functions.teachers_functions import *
+from services.async_functions.class_functions import *
 from utils.useful_functions import *
 import threading
 
@@ -183,10 +180,9 @@ class MyColorButton(ft.ElevatedButton):
             self.my_icon.update()
 
 
-class OneStudent(ft.Card):
+class OneStudent(ft.ListTile):
     def __init__(self, cp: object, infos: dict):
         super().__init__(
-            elevation=10, shape=ft.RoundedRectangleBorder(radius=16)
         )
         self.infos = infos
         self.cp = cp
@@ -202,108 +198,76 @@ class OneStudent(ft.Card):
             gender_bg_color = ft.Colors.PINK_50
 
         self.rep_container = ft.Container(
-            alignment=ft.alignment.center, width=30, shape=ft.BoxShape.CIRCLE, bgcolor='red50',
-            content=ft.Text('R', size=13, font_family='PPB', color='red700'),
-             border=ft.border.all(1, 'red700'), visible=True if infos['repeater'] else False
+            alignment=ft.alignment.center, width=30, shape=ft.BoxShape.CIRCLE, bgcolor='red',
+            content=ft.Text('R', size=13, font_family='PEB', color='white'),
+            visible=True if infos['repeater'] else False
         )
         self.new_container = ft.Container(
-            alignment=ft.alignment.center, width=30, shape=ft.BoxShape.CIRCLE, bgcolor='teal50',
-            content=ft.Text('N', size=13, font_family='PPB', color='teal700'),
-             border=ft.border.all(1, 'teal700'), visible=True if not infos['repeater'] else False
+            alignment=ft.alignment.center, width=30, shape=ft.BoxShape.CIRCLE, bgcolor='teal',
+            content=ft.Text('N', size=13, font_family='PEB', color='white'),
+            visible=True if not infos['repeater'] else False
         )
-        self.ct = ft.Container(
-            padding=10, border_radius=16, bgcolor='white', width=300,
-            on_hover=self.effect_hover,
-            scale=ft.Scale(1), animate_scale=ft.Animation(300, ft.AnimationCurve.EASE_OUT),
-            content=ft.Column(
-                controls=[
-                    ft.Stack(
-                        controls=[
-                            ft.CircleAvatar(radius=50, foreground_image_src=infos['image_url']),
-                            ColoredIcon(
-                                gender_icon, gender_color, gender_bg_color
-                            )
-                        ], alignment=ft.alignment.bottom_right
-                    ),
-                    ft.Divider(height=1, color=ft.Colors.TRANSPARENT),
-                    ft.Column(
-                        controls=[
-                            ft.Text(
-                                f"{infos['student_name']}".upper(), size=16, font_family='PPB',
-                            ),
-                            ft.Text(
-                                f"{infos['student_surname']}", size=14, font_family="PPR"
-                            )
-                        ], spacing=0,
-                        horizontal_alignment=ft.CrossAxisAlignment.CENTER
-                    ),
-                    ft.Row(
-                        controls=[
-                            ft.Text(f"{infos['class_code']}", size=16, font_family="PPM"),
-                            ft.Row([self.rep_container, self.new_container]),
-                        ], alignment=ft.MainAxisAlignment.CENTER
-                    ),
-                    ft.Divider(height=1, thickness=1),
-                    ft.Row(
-                        controls=[
-                            # ft.Text('Actions', size=16, font_family='PPM'),
-                            ft.PopupMenuButton(
-                                content=ft.Icon(ft.Icons.FORMAT_LIST_BULLETED, size=24, color='black'),
-                                bgcolor="white",
-                                items=[
-                                    ft.PopupMenuItem(
-                                        content=ft.Row(
-                                            controls=[
-                                                ft.Icon(ft.Icons.CONTACT_PAGE, size=18, color='black'),
-                                                ft.Text(languages[self.cp.lang]['student file'].capitalize(), size=18,
-                                                        font_family="PPM")
-                                            ]
-                                        ), on_click=self.open_edit_window, data=infos
-                                    ),
-                                    ft.PopupMenuItem(
-                                        content=ft.Row(
-                                            controls=[
-                                                ft.Icon(ft.Icons.ATTACH_MONEY, size=18, color='black'),
-                                                ft.Text(languages[self.cp.lang]['school fees'].capitalize(), size=18,
-                                                        font_family="PPM")
-                                            ]
-                                        ), on_click=self.open_school_fees_window, data=infos,
-                                    ),
-                                    ft.PopupMenuItem(
-                                        content=ft.Row(
-                                            controls=[
-                                                ft.Icon(ft.Icons.EMERGENCY, size=18, color='black'),
-                                                ft.Text('discipline'.capitalize(), size=18, font_family="PPM")
-                                            ]
-                                        ), on_click=self.open_report_window, data=infos,
-                                    ),
-                                    ft.PopupMenuItem(
-                                        content=ft.Row(
-                                            controls=[
-                                                ft.Icon(ft.Icons.FILE_PRESENT, size=18, color='black'),
-                                                ft.Text(languages[self.cp.lang]['print receipt'].capitalize(), size=18,
-                                                        font_family="PPM"),
-                                                ft.IconButton(
-                                                    ft.Icons.ATTACH_FILE, icon_size=18, icon_color='black',
-                                                    url=infos['receipt_url'],
-                                                    visible=True if infos['receipt_url'] else False
-                                                )
-                                            ]
-                                        ), on_click=None, data=infos,
-                                    )
-                                ]
-                            ),
-                        ], alignment=ft.MainAxisAlignment.CENTER
-                    )
-                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER
-            )
+
+        self.title=ft.Text(f"{infos['student_name']} {infos['student_surname']}".upper(), size=18, font_family='PPM')
+        self.subtitle=ft.Row(
+            controls=[
+                ft.Text(f"{infos['class_code']}", size=16, font_family='PPM', color='grey'),
+                ft.Row([self.new_container, self.rep_container])
+            ]
         )
-        self.content = self.ct
+        self.leading=ft.CircleAvatar(foreground_image_src=infos['image_url'], radius=30)
+        self.trailing=ft.PopupMenuButton(
+            content=ft.Icon(ft.Icons.FORMAT_LIST_BULLETED_OUTLINED, size=24, color='black'),
+            bgcolor="white",
+            items=[
+                ft.PopupMenuItem(
+                    content=ft.Row(
+                        controls=[
+                            ft.Icon(ft.Icons.CONTACT_PAGE, size=18, color='black'),
+                            ft.Text(languages[self.cp.lang]['student file'].capitalize(), size=18,
+                                    font_family="PPM")
+                        ]
+                    ), on_click=self.open_edit_window, data=infos
+                ),
+                ft.PopupMenuItem(
+                    content=ft.Row(
+                        controls=[
+                            ft.Icon(ft.Icons.ATTACH_MONEY, size=18, color='black'),
+                            ft.Text(languages[self.cp.lang]['school fees'].capitalize(), size=18,
+                                    font_family="PPM")
+                        ]
+                    ), on_click=self.open_school_fees_window, data=infos,
+                ),
+                ft.PopupMenuItem(
+                    content=ft.Row(
+                        controls=[
+                            ft.Icon(ft.Icons.EMERGENCY, size=18, color='black'),
+                            ft.Text('discipline'.capitalize(), size=18, font_family="PPM")
+                        ]
+                    ), on_click=self.open_report_window, data=infos,
+                ),
+                ft.PopupMenuItem(
+                    content=ft.Row(
+                        controls=[
+                            ft.Icon(ft.Icons.FILE_PRESENT, size=18, color='black'),
+                            ft.Text(languages[self.cp.lang]['print receipt'].capitalize(), size=18,
+                                    font_family="PPM"),
+                            ft.IconButton(
+                                ft.Icons.ATTACH_FILE, icon_size=18, icon_color='black',
+                                url=infos['receipt_url'],
+                                visible=True if infos['receipt_url'] else False
+                            )
+                        ]
+                    ), on_click=None, data=infos,
+                )
+            ]
+        )
+
 
     def open_edit_window(self, e):
-        self.cp.edit_id_student = e.control.data['student_id']
+        self.cp.edit_id_student = self.infos['student_id']
 
-        resp = supabase_client.table("students").select('*').eq('id', e.control.data['student_id']).single().execute()
+        resp = supabase_client.table("students").select('*').eq('id', self.infos['student_id']).single().execute()
 
         self.cp.edit_nom.value = resp.data['name']
         self.cp.edit_prenom.value = resp.data['surname']
@@ -317,7 +281,7 @@ class OneStudent(ft.Card):
         self.cp.edit_residence.value = resp.data['city']
         self.cp.edit_mat.value = resp.data['registration_number']
         self.cp.edit_image_url.value = resp.data['image_url']
-        self.cp.image_preview.foreground_image_src = e.control.data['image_url'] if e.control.data['image_url'] is not None else ''
+        self.cp.image_preview.foreground_image_src = self.infos['image_url'] if self.infos['image_url'] is not None else ''
         self.cp.show_one_window(self.cp.ct_edit_student)
 
     async def load_fees_widgets(self, e):
@@ -936,185 +900,29 @@ class SlotCardRoom(ft.Card):
             self.cp.cp.cp.box.update()
 
 
-
-# class SlotCardRoom(ft.Container):
-#     def __init__(self, cp: object, infos: dict):
-#         super().__init__(
-#             border_radius=16, bgcolor = day_color[infos['day']]['bg_color'],
-#             # border=ft.border.all(1, 'black')
-#         )
-#         self.cp = cp
-#         self.infos = infos
-#         self.delete_bt = MyMiniIcon('delete_outlined', languages[self.cp.lang]['free slot'], "black", self.infos, self.delete_affectation)
-#         self.assign_bt = MyMiniIcon(ft.Icons.ADD, languages[self.cp.lang]['assign slot'], "black", self.infos, self.add_affectation)
-#         self.check = ft.Checkbox()
-#         role = self.cp.cp.page.client_storage.get('role')
-#
-#         if infos['status']:
-#             if role not in ['principal', 'préfet']:
-#                 self.status_icon = ft.Icons.INDETERMINATE_CHECK_BOX_OUTLINED
-#                 self.status_color = 'red'
-#                 self.delete_bt.visible = False
-#                 self.assign_bt.visible = False
-#                 self.check.disabled = True
-#                 self.visible_bgcolor = day_color[infos['day']]['fg_color']
-#
-#             else:
-#                 self.status_icon = ft.Icons.INDETERMINATE_CHECK_BOX_OUTLINED
-#                 self.status_color = 'red'
-#                 self.delete_bt.visible = True
-#                 self.assign_bt.visible = False
-#                 self.check.disabled = True
-#                 self.visible_bgcolor = day_color[infos['day']]['fg_color']
-#
-#         else:
-#             if role not in ['principal', 'préfet']:
-#                 self.status_icon = ft.Icons.CHECK_CIRCLE
-#                 self.status_color = 'green'
-#                 self.delete_bt.visible = False
-#                 self.assign_bt.visible = False
-#                 self.check.disabled = False
-#                 self.visible_bgcolor = 'white'
-#
-#             else:
-#                 self.status_icon = ft.Icons.CHECK_CIRCLE
-#                 self.status_color = 'green'
-#                 self.delete_bt.visible = False
-#                 self.assign_bt.visible = True
-#                 self.check.disabled = False
-#                 self.visible_bgcolor = 'white'
-#
-#         self.prof = "" if infos['teacher_id'] is None else infos['teacher_name']
-#         self.mat = "" if infos['subject_id'] is None else infos['subject_short_name']
-#         self.class_code = "" if infos['class_id'] is None else infos['class_code']
-#
-#         self.content = ft.Container(
-#             border_radius=16, padding=10, width=190,
-#             content=ft.Column(
-#                 controls=[
-#                     ft.Container(
-#                         padding=5, border_radius=8, bgcolor='white', content=ft.Row(
-#                             controls=[
-#                                 ft.Icon(self.status_icon, size=18, color=self.status_color),
-#                                 ft.Text(languages[self.cp.lang][infos['day']].upper(), size=14, font_family="PPM"),
-#                             ], alignment=ft.MainAxisAlignment.CENTER
-#                         )
-#                     ),
-#                     ft.Row(
-#                         controls=[
-#                             ft.Row(
-#                                 controls=[
-#                                     ft.Icon('timer_outlined', size=18, color='black45'),
-#                                     ft.Text(infos['slot'], font_family='PPM', size=14),
-#                                 ]
-#                             ),
-#                             ft.Row([self.assign_bt, self.delete_bt])
-#                         ], alignment=ft.MainAxisAlignment.CENTER
-#                     ),
-#                     ft.Container(
-#                         padding=8, border_radius=8, expand=True,
-#                         bgcolor=self.visible_bgcolor,
-#                         content=ft.Row(
-#                             controls=[
-#                                 ft.Text(f"{self.mat} - {self.prof}", size=14, font_family="PPL", color="white"),
-#
-#                             ],
-#                             alignment=ft.MainAxisAlignment.CENTER
-#                         ),
-#                         tooltip=f"{languages[self.cp.lang]['day']}: {languages[self.cp.lang][infos['day']]}\n"
-#                                    f"{languages[self.cp.lang]['slot']}: {infos['slot']}\n"
-#                                    f"{languages[self.cp.lang]['class']}: {infos['class_code']}\n"
-#                                    f"{languages[self.cp.lang]['subject']}: {infos['subject_name']}\n"
-#                                    f"{languages[self.cp.lang]['teacher']}: {infos['teacher_name']}\n"
-#                     ),
-#                 ]
-#             )
-#         )
-#
-#     @staticmethod
-#     def run_async_in_thread(coro):
-#         def runner():
-#             loop = asyncio.new_event_loop()
-#             asyncio.set_event_loop(loop)
-#             loop.run_until_complete(coro)
-#             loop.close()
-#
-#         thread = threading.Thread(target=runner)
-#         thread.start()
-#
-#     def add_affectation(self, e):
-#         role = self.cp.cp.page.client_storage.get('role')
-#
-#         if role in ['principal', 'préfet']:
-#             self.cp.new_affectation_id = e.control.data['id']
-#             self.cp.new_day.value = e.control.data['day']
-#             self.cp.new_day_display.value = languages[self.cp.lang][e.control.data['day']]
-#             self.cp.new_slot.value = e.control.data['slot']
-#             self.cp.new_day.update()
-#             self.cp.new_day_display.update()
-#             self.cp.new_slot.update()
-#             self.cp.show_one_window(self.cp.new_affectation_window)
-#
-#         else:
-#             self.cp.cp.cp.box.title.value = languages[self.cp.lang]['error']
-#             self.cp.cp.cp.message.value = languages[self.cp.lang]['error rights']
-#             self.cp.cp.icon_message.name = ft.Icons.INFO_SHARP
-#             self.cp.cp.icon_message.color = ft.Colors.RED
-#             self.cp.cp.cp.box.open = True
-#             self.cp.cp.cp.box.update()
-#
-#     def delete_affectation(self, e):
-#         role = self.cp.cp.page.client_storage.get('role')
-#
-#         if role in ['principal', 'préfet']:
-#             # supprimer affectation
-#             resp = supabase_client.table('affectations').update(
-#                 {
-#                     "teacher_id": None, "subject_id": None
-#                 }
-#             ).eq('id', self.infos['id']).execute()
-#
-#             self.cp.cp.cp.box.title.value = languages[self.cp.lang]['success']
-#             self.cp.cp.cp.message.value = languages[self.cp.lang]['free time slot']
-#             self.cp.cp.icon_message.name = ft.Icons.CHECK_CIRCLE
-#             self.cp.cp.icon_message.color = ft.Colors.LIGHT_GREEN
-#             self.cp.cp.cp.box.open = True
-#             self.cp.cp.cp.box.update()
-#
-#             self.cp.refresh_view()
-#
-#         else:
-#             self.cp.cp.cp.box.title.value = languages[self.cp.lang]['error']
-#             self.cp.cp.cp.message.value = languages[self.cp.lang]['error rights']
-#             self.cp.cp.icon_message.name = ft.Icons.INFO_SHARP
-#             self.cp.cp.icon_message.color = ft.Colors.RED
-#             self.cp.cp.cp.box.open = True
-#             self.cp.cp.cp.box.update()
-
-
 class BoxStudentNote(ft.Container):
     def __init__(self, infos: dict):
         super().__init__(
             padding=ft.padding.only(10, 5, 10, 5), data=infos,
         )
-        self.check = ft.Icon(size=16)
+        self.check = ft.Icon(size=24)
         self.infos = infos
         self.my_note = ft.TextField(
-            **login_style, width=70,
+            **login_style, width=70, dense=True,
             input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9.]", replacement_string=""),
             text_align=ft.TextAlign.RIGHT, on_blur=self.on_note_change
         )
-        self.my_name = ft.Text(f"{infos['name']} {infos['surname']}".upper(), size=13, font_family='PPM', data=infos)
+        self.my_name = ft.Text(f"{infos['name']} {infos['surname']}".upper(), size=16, font_family='PPM', data=infos)
         self.content = ft.Row(
             controls=[
                 self.my_name,
-                ft.Row([self.my_note, self.check], spacing=2)
+                ft.Row([self.my_note, self.check], spacing=30)
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
         )
 
     def on_note_change(self, e):
         if float(self.my_note.value) > 20:
-            self.check.name = ft.Icons.DANGEROUS
+            self.check.name = ft.Icons.INFO_ROUNDED
             self.check.color = 'red'
 
         elif self.my_note.value is None:
@@ -1122,82 +930,42 @@ class BoxStudentNote(ft.Container):
 
         else:
             self.check.name = ft.Icons.CHECK_CIRCLE
-            self.check.color = ft.Colors.LIGHT_GREEN
+            self.check.color = ft.Colors.TEAL
 
         self.check.update()
 
 
-class OneTeacher(ft.Card):
+class OneTeacher(ft.ListTile):
     def __init__(self, cp: object, infos: dict):
         super().__init__(
-            elevation=10, shape=ft.RoundedRectangleBorder(radius=16),
-            scale=ft.Scale(1), animate_scale=ft.Animation(300, ft.AnimationCurve.EASE_OUT_EXPO)
+            on_click=self.open_edit_teacher_window
         )
         self.cp = cp
         self.infos = infos
 
         if self.infos['is_head_teacher']:
             assign_icon = ft.Icons.ASSIGNMENT_IND
-            assign_bg_color = ft.Colors.BLUE_500
+            assign_bg_color = ft.Colors.ORANGE
         else:
             assign_icon = ft.Icons.PERSON
-            assign_bg_color = ft.Colors.TEAL_500
+            assign_bg_color = ft.Colors.BROWN
 
         gender_icon = "man" if infos['gender'] == 'M' else "woman"
         gender_color = "blue" if infos['gender'] == 'M' else "pink"
 
         pay = infos['pay'] if infos['pay'] else '*****'
 
-
-        self.content = ft.Container(
-            border_radius=16, bgcolor='white', on_click=self.open_edit_teacher_window,
-            padding=ft.padding.only(10, 20, 10, 20),
-            content=ft.Column(
-                controls=[
-                    ft.Container(
-                        width=48, height=48, border_radius=ft.border_radius.all(24),
-                        alignment=ft.alignment.center, bgcolor=assign_bg_color,
-                        content=ft.Icon(assign_icon, color='white', size=24)
-                    ),
-                    ft.Divider(height=10, thickness=1),
-                    ft.Column(
-                        controls=[
-                            ft.Text(
-                                f"{infos['name']}", size=18, font_family='PEB',
-                            ),
-                            ft.Text(
-                                f"{infos['surname']}", size=14, font_family="PPR"
-                            )
-                        ], spacing=0,
-                        horizontal_alignment=ft.CrossAxisAlignment.CENTER
-                    ),
-                    ft.Divider(height=1, thickness=1),
-                    ft.Row(
-                        controls=[ft.Text('Actions', size=16, font_family='PPM')],
-                        alignment=ft.MainAxisAlignment.CENTER
-                    ),
-                    ft.Row(
-                        controls=[
-                            MyMiniIcon(
-                                'edit_outlined', '', 'blue',
-                                infos, self.open_edit_teacher_window),
-                            MyMiniIcon(
-                                'calendar_month', '', ft.Colors.BLUE_GREY, infos,
-                                self.open_schedule_window
-                            )
-                        ], alignment=ft.MainAxisAlignment.CENTER
-                    )
-                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER
-            )
+        self.title = ft.Text(f"{infos['name']} {infos['surname']}", size=18, font_family='PPM')
+        self.subtitle = ft.Text(f"{joindre_liste(infos['subjects'])}", size=14, font_family="PPM", color='grey')
+        self.leading = ft.Container(
+            shape=ft.BoxShape.CIRCLE, width=50, alignment=ft.alignment.center, bgcolor=assign_bg_color, padding=10,
+            content=ft.Icon(assign_icon, size=24, color='white')
+        )
+        self.trailing = ft.IconButton(
+            ft.Icons.CALENDAR_MONTH, icon_color='black87', icon_size=24,
+            on_click=self.open_schedule_window
         )
 
-    def effect_hover(self, e):
-        if e.data == 'true':
-            self.scale = 1.1
-            self.update()
-        else:
-            self.scale = 1
-            self.update()
 
     async def load_schedule(self, e):
         self.cp.table_schedule.rows.clear()
@@ -1302,9 +1070,152 @@ class ColoredIcon(ft.Container):
         )
 
 
+class BarGraphic(ft.BarChart):
+    def __init__(self, infos: list, max_value: int):
+        super().__init__(
+            bar_groups=[
+                ft.BarChartGroup(
+                    x=i,
+                    bar_rods=[
+                        ft.BarChartRod(
+                            from_y=0,
+                            to_y=infos[i]['value'],
+                            width=10,  # Largeur de la barre
+                            color=infos[i]['color'],  # Couleur principale
+                            tooltip=infos[i]['label'],
+                            border_radius=24,  # Bords arrondis
+                            bg_to_y=max_value + 10,  # Hauteur de la zone de fond
+                            bg_color=infos[i]['bg_color'],  # Couleur de fond
+                        )
+                    ]
+                )
+                for i in range(len(infos))
+            ],
+
+            bottom_axis=ft.ChartAxis(
+                labels=[
+                    ft.ChartAxisLabel(value=i, label=ft.Text(infos[i]['label'].upper(), size=11, font_family='PPI', color='grey'))
+                    for i in range(len(infos))
+                ],
+                labels_size=40,
+            ),
+            max_y=max_value + 10,  # Définit la hauteur maximale de l'axe Y
+            interactive=True,
+            expand=True,
+        )
 
 
+class OneClassRoom(ft.ListTile):
+    def __init__(self, cp: object, infos: dict):
+        super().__init__(
+            is_three_line=True, content_padding=10
+        )
 
+        self.cp = cp
+        self.infos = infos
+
+        taux = infos['student_count'] / infos['capacity']
+
+        if 0 < taux <= 0.5:
+            pb_color = 'amber'
+        elif 0.3 < taux <= 0.90:
+            pb_color = "orange"
+        elif taux > 0.9:
+            pb_color = 'red'
+        else:
+            pb_color = None
+
+        if infos['is_examination_class']:
+            exam_icon = ft.Icons.ACCOUNT_BALANCE_OUTLINED
+            exam_color = ft.Colors.PINK
+        else:
+            exam_icon = ft.Icons.ROOFING
+            exam_color = ft.Colors.BLUE
+
+        if infos['head_teacher_name']:
+            htn = f"{infos['head_teacher_name']} {infos['head_teacher_surname']}"
+        else:
+            htn = 'Pas attribué'
+
+        self.title = ft.Text(f"{infos['code']}", size=18, font_family='PEB')
+        self.subtitle = ft.Column(
+            controls=[
+                ft.Row(
+                    controls=[
+                        ft.Text(f"{languages[self.cp.lang]['head teacher']} :", size=16, font_family='PPM', color='grey'),
+                        ft.Text(htn, size=16, font_family='PPM')
+                    ]
+                ),
+                ft.Row(
+                    controls=[
+                        ft.Text(languages[self.cp.lang]['fill rate'], size=16, font_family='PPM', color='grey'),
+                        ft.ProgressBar(
+                            height=5, width=120, color=pb_color, value=taux, border_radius=16,
+                        ),
+                        ft.Text(f"{infos['student_count']} sur {infos['capacity']}", size=16, font_family='PPM')
+                    ]
+                )
+            ]
+        )
+        self.leading = ft.Container(
+            width=50, shape=ft.BoxShape.CIRCLE, alignment=ft.alignment.center, bgcolor=exam_color,
+            content=ft.Icon(exam_icon, size=24, color='white')
+        )
+        self.trailing = ft.IconButton(
+            ft.Icons.FORMAT_LIST_BULLETED_OUTLINED, icon_size=24, icon_color='black87',
+            on_click=self.show_class_details
+        )
+
+    async def open_details_window(self, e):
+        self.cp.det_level.value = self.infos['level_code']
+        self.cp.det_count.value = self.infos['student_count']
+
+        name = f"{self.infos['head_teacher_name']}"
+        surname = f"{self.infos['head_teacher_surname']}"
+
+        access_token = self.cp.cp.page.client_storage.get('access_token')
+        self.cp.show_one_window(self.cp.st_details_window)
+
+        prof_datas = f"{name} {surname}" if self.infos['head_teacher_name'] else 'Pas attribué'
+
+        self.cp.det_main_teacher.value = prof_datas
+
+        # students ___________________________________
+        details = await get_students_by_class_id(self.infos['id'], access_token)
+        self.cp.det_table_registered.rows.clear()
+
+        for d, detail in enumerate(details):
+            line_color = ft.Colors.GREY_100 if d % 2 == 0 else ft.Colors.WHITE
+            self.cp.det_table_registered.rows.append(
+                ft.DataRow(
+                    cells=[
+                        ft.DataCell(ft.Text(f"{detail['name']} {detail['surname']}".upper())),
+                        ft.DataCell(ft.Text(f"{detail['gender']}"))
+                    ], color=line_color
+                )
+            )
+
+        # schedule _______________________________________
+        slots = await get_class_schedule(self.infos['id'], access_token)
+        self.cp.det_table_affectations.rows.clear()
+
+        for s, slot in enumerate(slots):
+            line_color = ft.Colors.GREY_100 if s % 2 == 0 else ft.Colors.WHITE
+            self.cp.det_table_affectations.rows.append(
+                ft.DataRow(
+                    cells=[
+                        ft.DataCell(ft.Text(languages[self.cp.lang][slot['day']])),
+                        ft.DataCell(ft.Text(slot['slot'])),
+                        ft.DataCell(ft.Text(slot['short_name'])),
+                        ft.DataCell(ft.Text(slot['teacher_name'].upper())),
+                    ], color=line_color
+                )
+            )
+
+        self.cp.build_details_container()
+
+    def show_class_details(self, e):
+        self.cp.run_async_in_thread(self.open_details_window(e))
 
 
 

@@ -1,4 +1,4 @@
-from components import MyButton, MyTextButton, MyMiniIcon
+from components import MyButton, MyTextButton, MyMiniIcon, OneClassRoom
 from services.async_functions.general_functions import *
 from services.async_functions.class_functions import *
 from services.supabase_client import supabase_client
@@ -24,34 +24,34 @@ class Classes(ft.Container):
         self.search = ft.TextField(
             **login_style, prefix_icon='search', width=300, on_change=self.filter_datas
         )
-        self.table = ft.DataTable(
-            **datatable_style, columns=[
-                ft.DataColumn(ft.Text(choice)) for choice in [
-                    "Label", languages[self.lang]['capacity'].capitalize(), languages[self.lang]['head count'].capitalize(),
-                    languages[self.lang]['rate'].capitalize(), languages[self.lang]['head teacher'].capitalize(), 'Actions'
-                ]
-            ]
-        )
+        # self.table = ft.DataTable(
+        #     **datatable_style, columns=[
+        #         ft.DataColumn(ft.Text(choice)) for choice in [
+        #             "Label", languages[self.lang]['capacity'].capitalize(), languages[self.lang]['head count'].capitalize(),
+        #             languages[self.lang]['rate'].capitalize(), languages[self.lang]['head teacher'].capitalize(), 'Actions'
+        #         ]
+        #     ]
+        # )
+        self.table = ft.ListView(expand=True, divider_thickness=1, spacing=7)
 
-        self.active_sequence = ft.Text(size=13, font_family='PPM')
-        self.active_quarter = ft.Text(size=13, font_family='PPM')
+        self.active_sequence = ft.Text(size=14, font_family='PPB')
+        self.active_quarter = ft.Text(size=14, font_family='PPB')
         self.sequence_ct = ft.Container(
-            padding=5, border_radius=10, border=ft.border.all(1, BASE_COLOR),
-            alignment=ft.alignment.center,  # visible=False,
-            content=ft.Row(
+            **seq_ct_style, content=ft.Row(
                 controls=[
-                    ft.Icon(ft.Icons.CALENDAR_MONTH_ROUNDED, size=16, color='black'),
-                    self.active_sequence
-                ]
-            )
-        )
-        self.quarter_ct = ft.Container(
-            padding=5, border_radius=10, border=ft.border.all(1, BASE_COLOR),
-            alignment=ft.alignment.center,  # visible=False,
-            content=ft.Row(
-                controls=[
-                    ft.Icon(ft.Icons.CALENDAR_TODAY, size=16, color='black'),
-                    self.active_quarter
+                    ft.Row(
+                        [
+                            ft.Icon(ft.Icons.WATCH_LATER, size=20, color='black'),
+                            self.active_quarter
+                        ]
+                    ),
+                    ft.Text(" | ", size=16, font_family='PPM'),
+                    ft.Row(
+                        [
+                            ft.Icon(ft.Icons.CALENDAR_MONTH_ROUNDED, size=20, color='black'),
+                            self.active_sequence
+                        ]
+                    )
                 ]
             )
         )
@@ -74,7 +74,7 @@ class Classes(ft.Container):
                             ft.Text("Pilot", size=28, font_family="PEB"),
                         ], spacing=0
                     ),
-                    ft.Row([self.sequence_ct, self.quarter_ct])
+                    self.sequence_ct
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
             )
         )
@@ -95,10 +95,8 @@ class Classes(ft.Container):
                         ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
                     ),
                     ft.Container(
-                        padding=0, border_radius=16, border=ft.border.all(1, ft.Colors.GREY_300),
-                        expand=True, bgcolor='white', content=ft.ListView(
-                            expand=True, controls=[self.table]
-                        )
+                        padding=0, border_radius=16,
+                        expand=True, content=self.table
                     )
                 ]
             )
@@ -227,9 +225,9 @@ class Classes(ft.Container):
 
         self.st_details_window = ft.Container(
             **ct_style, content=ft.Container(
-                **intern_ct_style, width=850, height=700, padding=0,
+                **intern_ct_style, width=850, height=700,
                 content=ft.Column(
-                    expand=True,
+                    expand=True, scroll=ft.ScrollMode.AUTO,
                     controls=[
                         ft.Container(
                             bgcolor="white", padding=20,
@@ -242,7 +240,7 @@ class Classes(ft.Container):
                                         'close', icon_color='black87', bgcolor=MAIN_COLOR,
                                         on_click=self.close_details_window
                                     ),
-                                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                             )
                         ),
                         ft.Container(
@@ -252,7 +250,7 @@ class Classes(ft.Container):
                                 expand=True,
                                 controls=[
                                     self.dt_container
-                                ]
+                                ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER
                             )
                         )
                     ], spacing=0
@@ -327,41 +325,11 @@ class Classes(ft.Container):
         self.active_quarter.data = active_sequence['quarter']
 
         details = await get_classes_details_by_year(access_token, year_id)
-        self.table.rows.clear()
+        self.table.controls.clear()
 
         for i, item in enumerate(details):
-            line_color = ft.Colors.GREY_100 if i % 2 == 0 else ft.Colors.WHITE
-            rate = item['student_count'] / item['capacity']
-            if item['head_teacher_name']:
-                teacher_name = f"{item['head_teacher_name']} {item['head_teacher_surname']}"
-            else:
-                teacher_name = ''
-
-            self.table.rows.append(
-                ft.DataRow(
-                    cells=[
-                        ft.DataCell(ft.Text(f"{item['code']}")),
-                        ft.DataCell(ft.Text(f"{item['capacity']}")),
-                        ft.DataCell(ft.Text(f"{item['student_count']}")),
-                        ft.DataCell(
-                            ft.ProgressBar(
-                                value=rate, height=5, border_radius=16,
-                                bgcolor=MAIN_COLOR, color=BASE_COLOR
-                            )
-                        ),
-                        ft.DataCell(ft.Text(f"{teacher_name}")),
-                        ft.DataCell(
-                            MyMiniIcon(
-                                'format_list_bulleted', languages[self.lang]['details'], 'black', item,
-                                self.show_class_details
-                            ),
-                            # ft.IconButton(
-                            #     ft.Icons.FORMAT_LIST_BULLETED, icon_size=24, icon_color='black',
-                            #     data=item, on_click=self.show_class_details
-                            # )
-                        )
-                    ], color=line_color
-                )
+            self.table.controls.append(
+                OneClassRoom(self, item)
             )
 
         await self.build_main_view()
@@ -379,40 +347,45 @@ class Classes(ft.Container):
 
         search = self.search.value if self.search.value else ''
         details = await get_classes_details_by_year(access_token, year_id)
-        self.table.rows.clear()
+        self.table.controls.clear()
 
         filtered_datas = list(filter(lambda x: search in x['code'], details))
 
         for i, item in enumerate(filtered_datas):
-            line_color = ft.Colors.GREY_100 if i % 2 == 0 else ft.Colors.WHITE
-            rate = item['student_count'] / item['capacity']
-            if item['head_teacher_name']:
-                teacher_name = f"{item['head_teacher_name']} {item['head_teacher_surname']}"
-            else:
-                teacher_name = ''
-
-            self.table.rows.append(
-                ft.DataRow(
-                    cells=[
-                        ft.DataCell(ft.Text(f"{item['code']}")),
-                        ft.DataCell(ft.Text(f"{item['capacity']}")),
-                        ft.DataCell(ft.Text(f"{item['student_count']}")),
-                        ft.DataCell(
-                            ft.ProgressBar(
-                                value=rate, height=5, border_radius=16,
-                                bgcolor=MAIN_COLOR, color=BASE_COLOR
-                            )
-                        ),
-                        ft.DataCell(ft.Text(f"{teacher_name}")),
-                        ft.DataCell(
-                            ft.IconButton(
-                                ft.Icons.FORMAT_LIST_BULLETED, icon_size=24, icon_color='black',
-                                data=item, on_click=self.show_class_details
-                            )
-                        )
-                    ], color=line_color
-                )
+            self.table.controls.append(
+                OneClassRoom(self, item)
             )
+
+        # for i, item in enumerate(filtered_datas):
+        #     line_color = ft.Colors.GREY_100 if i % 2 == 0 else ft.Colors.WHITE
+        #     rate = item['student_count'] / item['capacity']
+        #     if item['head_teacher_name']:
+        #         teacher_name = f"{item['head_teacher_name']} {item['head_teacher_surname']}"
+        #     else:
+        #         teacher_name = ''
+        #
+        #     self.table.rows.append(
+        #         ft.DataRow(
+        #             cells=[
+        #                 ft.DataCell(ft.Text(f"{item['code']}")),
+        #                 ft.DataCell(ft.Text(f"{item['capacity']}")),
+        #                 ft.DataCell(ft.Text(f"{item['student_count']}")),
+        #                 ft.DataCell(
+        #                     ft.ProgressBar(
+        #                         value=rate, height=5, border_radius=16,
+        #                         bgcolor=MAIN_COLOR, color=BASE_COLOR
+        #                     )
+        #                 ),
+        #                 ft.DataCell(ft.Text(f"{teacher_name}")),
+        #                 ft.DataCell(
+        #                     ft.IconButton(
+        #                         ft.Icons.FORMAT_LIST_BULLETED, icon_size=24, icon_color='black',
+        #                         data=item, on_click=self.show_class_details
+        #                     )
+        #                 )
+        #             ], color=line_color
+        #         )
+        #     )
 
         await self.build_main_view()
 
@@ -514,53 +487,53 @@ class Classes(ft.Container):
             self.cp.box.open = True
             self.cp.box.update()
 
-    async def open_details_window(self, e):
-        self.det_level.value = e.control.data['level_code']
-        self.det_count.value = e.control.data['student_count']
-
-        access_token = self.cp.page.client_storage.get('access_token')
-        self.show_one_window(self.st_details_window)
-
-        prof_datas = f"{e.control.data['head_teacher_name']} {e.control.data['head_teacher_surname']}"
-
-        self.det_main_teacher.value = prof_datas
-
-        # students ___________________________________
-        details = await get_students_by_class_id(e.control.data['id'], access_token)
-        self.det_table_registered.rows.clear()
-
-        for d, detail in enumerate(details):
-            line_color = ft.Colors.GREY_100 if d % 2 == 0 else ft.Colors.WHITE
-            self.det_table_registered.rows.append(
-                ft.DataRow(
-                    cells=[
-                        ft.DataCell(ft.Text(f"{detail['name']} {detail['surname']}".upper())),
-                        ft.DataCell(ft.Text(f"{detail['gender']}"))
-                    ], color=line_color
-                )
-            )
-
-        # schedule _______________________________________
-        slots = await get_class_schedule(e.control.data['id'], access_token)
-        self.det_table_affectations.rows.clear()
-
-        for s, slot in enumerate(slots):
-            line_color = ft.Colors.GREY_100 if s % 2 == 0 else ft.Colors.WHITE
-            self.det_table_affectations.rows.append(
-                ft.DataRow(
-                    cells=[
-                        ft.DataCell(ft.Text(languages[self.lang][slot['day']])),
-                        ft.DataCell(ft.Text(slot['slot'])),
-                        ft.DataCell(ft.Text(slot['short_name'])),
-                        ft.DataCell(ft.Text(slot['teacher_name'].upper())),
-                    ], color=line_color
-                )
-            )
-
-        self.build_details_container()
-
-    def show_class_details(self, e):
-        self.run_async_in_thread(self.open_details_window(e))
+    # async def open_details_window(self, e):
+    #     self.det_level.value = e.control.data['level_code']
+    #     self.det_count.value = e.control.data['student_count']
+    #
+    #     access_token = self.cp.page.client_storage.get('access_token')
+    #     self.show_one_window(self.st_details_window)
+    #
+    #     prof_datas = f"{e.control.data['head_teacher_name']} {e.control.data['head_teacher_surname']}"
+    #
+    #     self.det_main_teacher.value = prof_datas
+    #
+    #     # students ___________________________________
+    #     details = await get_students_by_class_id(e.control.data['id'], access_token)
+    #     self.det_table_registered.rows.clear()
+    #
+    #     for d, detail in enumerate(details):
+    #         line_color = ft.Colors.GREY_100 if d % 2 == 0 else ft.Colors.WHITE
+    #         self.det_table_registered.rows.append(
+    #             ft.DataRow(
+    #                 cells=[
+    #                     ft.DataCell(ft.Text(f"{detail['name']} {detail['surname']}".upper())),
+    #                     ft.DataCell(ft.Text(f"{detail['gender']}"))
+    #                 ], color=line_color
+    #             )
+    #         )
+    #
+    #     # schedule _______________________________________
+    #     slots = await get_class_schedule(e.control.data['id'], access_token)
+    #     self.det_table_affectations.rows.clear()
+    #
+    #     for s, slot in enumerate(slots):
+    #         line_color = ft.Colors.GREY_100 if s % 2 == 0 else ft.Colors.WHITE
+    #         self.det_table_affectations.rows.append(
+    #             ft.DataRow(
+    #                 cells=[
+    #                     ft.DataCell(ft.Text(languages[self.lang][slot['day']])),
+    #                     ft.DataCell(ft.Text(slot['slot'])),
+    #                     ft.DataCell(ft.Text(slot['short_name'])),
+    #                     ft.DataCell(ft.Text(slot['teacher_name'].upper())),
+    #                 ], color=line_color
+    #             )
+    #         )
+    #
+    #     self.build_details_container()
+    #
+    # def show_class_details(self, e):
+    #     self.run_async_in_thread(self.open_details_window(e))
 
     def close_details_window(self, e):
         self.hide_one_window(self.st_details_window)
@@ -569,7 +542,7 @@ class Classes(ft.Container):
             ft.Column(
                 controls=[
                     ft.Text(languages[self.lang]['loading screen'], size=18, font_family='PPR'),
-                    ft.ProgressRing(color=BASE_COLOR)
+                    ft.ProgressBar(color=BASE_COLOR)
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 alignment=ft.MainAxisAlignment.CENTER
             )
@@ -585,34 +558,41 @@ class Classes(ft.Container):
                 controls=[
                     ft.Row(
                         controls=[
-                            ft.Row(
+                            ft.Column(
                                 controls=[
-                                    ft.Icon(ft.Icons.ACCOUNT_BALANCE_OUTLINED, size=24, color=ACCENT_PLUS_COLOR),
                                     ft.Text(languages[self.lang]['level'], size=16, color='grey',
                                             font_family='PPM'),
-                                    self.det_level,
-
-                                ], spacing=7
+                                    ft.Row(
+                                        controls=[
+                                            ft.Icon(ft.Icons.ACCOUNT_BALANCE_OUTLINED, size=28, color='black'),
+                                            self.det_level,
+                                        ]
+                                    )
+                                ], visible=False
                             ),
-                            ft.Row(
+                            ft.Column(
                                 controls=[
-                                    ft.Icon(ft.Icons.ASSIGNMENT_IND, size=24, color=ACCENT_PLUS_COLOR),
                                     ft.Text(languages[self.lang]['head teacher'], size=16,
                                             color='grey', font_family='PPM'),
-                                    self.det_main_teacher,
-
-                                ], spacing=7
+                                    ft.Row(
+                                        controls=[
+                                            ft.Icon(ft.Icons.ASSIGNMENT_IND, size=28, color='black'),
+                                            self.det_main_teacher,
+                                        ]
+                                    )
+                                ]
                             ),
-                            ft.Row(
+                            ft.Column(
                                 controls=[
-                                    ft.Icon(ft.Icons.GROUPS, size=24, color=ACCENT_PLUS_COLOR),
-                                    ft.Text(languages[self.lang]['head count'], size=16,
-                                            color='grey',
-                                            font_family='PPM'),
-                                    self.det_count,
-
-                                ], spacing=7
-                            ),
+                                    ft.Text(languages[self.lang]['head count'], size=16, color='grey', font_family='PPM'),
+                                    ft.Row(
+                                        controls=[
+                                            ft.Icon(ft.Icons.GROUPS, size=28, color='black'),
+                                            self.det_count,
+                                        ]
+                                    )
+                                ]
+                            )
                         ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
                     ),
                     ft.Divider(height=10, color=ft.Colors.TRANSPARENT),
@@ -626,8 +606,8 @@ class Classes(ft.Container):
                             ft.Tab(
                                 tab_content=ft.Row(
                                     controls=[
-                                        ft.Icon(ft.Icons.GROUPS, size=24),
-                                        ft.Text(languages[self.lang]["registered students list"].capitalize(),
+                                        ft.Icon(ft.Icons.SUPERVISOR_ACCOUNT_OUTLINED, size=24),
+                                        ft.Text(languages[self.lang]["registered students list"].upper(),
                                                 size=16,
                                                 font_family="PPM")
                                     ]
@@ -641,7 +621,7 @@ class Classes(ft.Container):
                                                 expand=True, border=ft.border.all(1, 'grey300'),
                                                 border_radius=16,
                                                 content=ft.ListView(
-                                                    expand=True, controls=[self.det_table_registered]
+                                                    expand=True, controls=[self.det_table_registered], height=450
                                                 )
                                             )
                                         ]
@@ -651,8 +631,8 @@ class Classes(ft.Container):
                             ft.Tab(
                                 tab_content=ft.Row(
                                     controls=[
-                                        ft.Icon(ft.Icons.SCHOOL, size=24),
-                                        ft.Text(languages[self.lang]['menu time table'].capitalize(), size=16,
+                                        ft.Icon(ft.Icons.CALENDAR_MONTH_OUTLINED, size=24),
+                                        ft.Text(languages[self.lang]['menu time table'].upper(), size=16,
                                                 font_family="PPM")
                                     ]
                                 ),
@@ -665,7 +645,7 @@ class Classes(ft.Container):
                                                 border=ft.border.all(1, 'grey300'),
                                                 border_radius=16,
                                                 content=ft.ListView(
-                                                    expand=True, controls=[self.det_table_affectations]
+                                                    expand=True, controls=[self.det_table_affectations], height=450
                                                 )
                                             )
                                         ]
