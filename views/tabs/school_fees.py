@@ -104,25 +104,24 @@ class SchoolFees(ft.Container):
             ft.Icons.MENU, icon_size=24, icon_color='black',
             on_click=lambda e: self.cp.page.open(self.cp.drawer)
         )
-        self.active_sequence = ft.Text(size=13, font_family='PPM')
-        self.active_quarter = ft.Text(size=13, font_family='PPM')
+        self.active_sequence = ft.Text(size=14, font_family='PPB')
+        self.active_quarter = ft.Text(size=14, font_family='PPB')
         self.sequence_ct = ft.Container(
-            padding=5, border_radius=16, border=ft.border.all(1, BASE_COLOR),
-            alignment=ft.alignment.center,  # visible=False,
-            content=ft.Row(
+            **seq_ct_style, content=ft.Row(
                 controls=[
-                    ft.Icon(ft.Icons.CALENDAR_MONTH_ROUNDED, size=16, color='black'),
-                    self.active_sequence
-                ]
-            )
-        )
-        self.quarter_ct = ft.Container(
-            padding=5, border_radius=16, border=ft.border.all(1, BASE_COLOR),
-            alignment=ft.alignment.center,  # visible=False,
-            content=ft.Row(
-                controls=[
-                    ft.Icon(ft.Icons.CALENDAR_TODAY, size=16, color='black'),
-                    self.active_quarter
+                    ft.Row(
+                        [
+                            ft.Icon(ft.Icons.WATCH_LATER, size=20, color='black'),
+                            self.active_quarter
+                        ]
+                    ),
+                    ft.Text(" | ", size=16, font_family='PPM'),
+                    ft.Row(
+                        [
+                            ft.Icon(ft.Icons.CALENDAR_MONTH_ROUNDED, size=20, color='black'),
+                            self.active_sequence
+                        ]
+                    )
                 ]
             )
         )
@@ -146,7 +145,7 @@ class SchoolFees(ft.Container):
                             ft.Text("Pilot", size=28, font_family="PEB"),
                         ], spacing=0
                     ),
-                    ft.Row([self.sequence_ct, self.quarter_ct])
+                    ft.Row([self.sequence_ct])
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
             )
         )

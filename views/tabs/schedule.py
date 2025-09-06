@@ -31,25 +31,24 @@ class Schedule(ft.Container):
             on_click=lambda e: self.cp.page.open(self.cp.drawer)
         )
 
-        self.active_sequence = ft.Text(size=13, font_family='PPM')
-        self.active_quarter = ft.Text(size=13, font_family='PPM')
+        self.active_sequence = ft.Text(size=14, font_family='PPB')
+        self.active_quarter = ft.Text(size=14, font_family='PPB')
         self.sequence_ct = ft.Container(
-            padding=5, border_radius=10, border=ft.border.all(1, BASE_COLOR),
-            alignment=ft.alignment.center,  # visible=False,
-            content=ft.Row(
+            **seq_ct_style, content=ft.Row(
                 controls=[
-                    ft.Icon(ft.Icons.CALENDAR_MONTH_ROUNDED, size=16, color='black'),
-                    self.active_sequence
-                ]
-            )
-        )
-        self.quarter_ct = ft.Container(
-            padding=5, border_radius=10, border=ft.border.all(1, BASE_COLOR),
-            alignment=ft.alignment.center,  # visible=False,
-            content=ft.Row(
-                controls=[
-                    ft.Icon(ft.Icons.CALENDAR_TODAY, size=16, color='black'),
-                    self.active_quarter
+                    ft.Row(
+                        [
+                            ft.Icon(ft.Icons.WATCH_LATER, size=20, color='black'),
+                            self.active_quarter
+                        ]
+                    ),
+                    ft.Text(" | ", size=16, font_family='PPM'),
+                    ft.Row(
+                        [
+                            ft.Icon(ft.Icons.CALENDAR_MONTH_ROUNDED, size=20, color='black'),
+                            self.active_sequence
+                        ]
+                    )
                 ]
             )
         )
@@ -72,7 +71,7 @@ class Schedule(ft.Container):
                             ft.Text("Pilot", size=28, font_family="PEB"),
                         ], spacing=0
                     ),
-                    ft.Row([self.sequence_ct, self.quarter_ct])
+                    ft.Row([self.sequence_ct])
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
             )
         )
@@ -214,7 +213,7 @@ class Schedule(ft.Container):
         )
 
         self.prof_det_name = ft.Text("-", size=16, font_family='PPM')
-        self.prof_det_nb_hours = ft.Text("0", size=16, font_family='PEB')
+        self.prof_det_nb_hours = ft.Text("0", size=24, font_family='PEB')
         self.prof_det_print = MyButton(languages[lang]['print'], 'print', 200, None)
         self.prof_det_table = ft.DataTable(
             **datatable_style, columns=[
@@ -1050,24 +1049,39 @@ class Schedule(ft.Container):
                 controls=[
                     ft.Row(
                         controls=[
-                            ft.Icon(ft.Icons.PERSON_OUTLINE_OUTLINED, size=24, color="grey"),
-                            self.prof_det_name
+                            ft.Column(
+                                controls=[
+                                    ft.Text(languages[self.lang]['name'], size=16, font_family='PPM', color='grey'),
+                                    ft.Row(
+                                        controls=[
+                                            ft.Icon(ft.Icons.PERSON_OUTLINE_OUTLINED, size=28, color="grey"),
+                                            self.prof_det_name
+                                        ]
+                                    ),
+                                ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER
+                            ),
+                            ft.VerticalDivider(width=1, thickness=1),
+                            ft.Column(
+                                controls=[
+                                    ft.Text(languages[self.lang]['nb hours affected'], size=16, font_family='PPM',
+                                            color='grey'),
+                                    ft.Row(
+                                        controls=[
+                                            ft.Icon(ft.Icons.TIMER, size=28, color='black'),
+                                            self.prof_det_nb_hours,
+                                        ]
+                                    )
+                                ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER
+                            ),
                         ]
                     ),
-                    ft.Row(
-                        controls=[
-                            ft.Text(languages[self.lang]['nb hours affected'], size=16, font_family='PPM',
-                                    color='grey'),
-                            self.prof_det_nb_hours, ft.VerticalDivider(width=10),
-                            self.prof_det_print
-                        ]
-                    ),
+                    self.prof_det_print
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
             ),
             ft.Divider(height=1, color=ft.Colors.TRANSPARENT),
             ft.Container(
                 padding=0, border_radius=16, border=ft.border.all(1, MAIN_COLOR), expand=True,
-                content=ft.ListView(expand=True, controls=[self.prof_det_table])
+                content=ft.ListView(expand=True, controls=[self.prof_det_table], height=450)
             )
         ]
         # on update la vue...

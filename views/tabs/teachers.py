@@ -1,5 +1,5 @@
 from components import MyButton, SingleOption, EditSingleOption, MyTextButton, MyMiniIcon, OneTeacher
-from utils.styles import drop_style, datatable_style, login_style, ct_style, intern_ct_style
+from utils.styles import drop_style, datatable_style, login_style, ct_style, intern_ct_style, seq_ct_style
 from utils.couleurs import *
 from translations.translations import languages
 import os, mimetypes, asyncio, threading, json
@@ -25,33 +25,32 @@ class Teachers(ft.Container):
         self.search = ft.TextField(
             **login_style, prefix_icon='search', width=300, on_change=self.filter_datas
         )
-        self.table = ft.GridView(
-            expand=True,
-            max_extent=250,
-            child_aspect_ratio=0.7,
-            spacing=15,
-            run_spacing=15
-        )
-
-        self.active_sequence = ft.Text(size=13, font_family='PPM')
-        self.active_quarter = ft.Text(size=13, font_family='PPM')
+        # self.table = ft.GridView(
+        #     expand=True,
+        #     max_extent=250,
+        #     child_aspect_ratio=0.7,
+        #     spacing=15,
+        #     run_spacing=15
+        # )
+        self.table = ft.ListView(expand=True, spacing=7, divider_thickness=1)
+        self.active_sequence = ft.Text(size=14, font_family='PPB')
+        self.active_quarter = ft.Text(size=14, font_family='PPB')
         self.sequence_ct = ft.Container(
-            padding=5, border_radius=10, border=ft.border.all(1, BASE_COLOR),
-            alignment=ft.alignment.center,  # visible=False,
-            content=ft.Row(
+            **seq_ct_style, content=ft.Row(
                 controls=[
-                    ft.Icon(ft.Icons.CALENDAR_MONTH_ROUNDED, size=16, color='black'),
-                    self.active_sequence
-                ]
-            )
-        )
-        self.quarter_ct = ft.Container(
-            padding=5, border_radius=10, border=ft.border.all(1, BASE_COLOR),
-            alignment=ft.alignment.center,  # visible=False,
-            content=ft.Row(
-                controls=[
-                    ft.Icon(ft.Icons.CALENDAR_TODAY, size=16, color='black'),
-                    self.active_quarter
+                    ft.Row(
+                        [
+                            ft.Icon(ft.Icons.WATCH_LATER, size=20, color='black'),
+                            self.active_quarter
+                        ]
+                    ),
+                    ft.Text(" | ", size=16, font_family='PPM'),
+                    ft.Row(
+                        [
+                            ft.Icon(ft.Icons.CALENDAR_MONTH_ROUNDED, size=20, color='black'),
+                            self.active_sequence
+                        ]
+                    )
                 ]
             )
         )
@@ -74,7 +73,7 @@ class Teachers(ft.Container):
                             ft.Text("Pilot", size=28, font_family="PEB"),
                         ], spacing=0
                     ),
-                    ft.Row([self.sequence_ct, self.quarter_ct])
+                    ft.Row([self.sequence_ct])
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
             )
         )
@@ -432,17 +431,12 @@ class Teachers(ft.Container):
                             border_radius=ft.border_radius.only(bottom_left=8, bottom_right=8), expand=True,
                             content=ft.Column(
                                 controls=[
-                                    self.head_teacher_name, self.head_class_name,
-                                    ft.Container(
-                                        padding=10,
-                                        content=ft.Row(
-                                            [
-                                                MyButton(
-                                                    languages[lang]['valid'], 'check', 330,
-                                                    self.valid_assignment
-                                                )
-                                            ]
-                                        )
+                                    self.head_teacher_name,
+                                    ft.Divider(color=ft.Colors.TRANSPARENT),
+                                    self.head_class_name,
+                                    MyButton(
+                                        languages[lang]['valid'], 'check', 330,
+                                        self.valid_assignment
                                     )
                                 ]
                             )

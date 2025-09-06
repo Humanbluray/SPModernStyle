@@ -110,6 +110,12 @@ bottom_ct_style: dict = dict(
     border_radius=ft.border_radius.only(bottom_left=8, bottom_right=8),
 )
 
+# _____sequence container style_____
+seq_ct_style: dict = dict(
+    padding=5, border_radius=16, border=ft.border.all(1, BASE_COLOR),
+    alignment=ft.alignment.center,
+)
+
 # _____Style pour les datatables_____
 datatable_style: dict = dict(
     heading_row_color=ACCENT_PLUS_COLOR,

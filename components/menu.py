@@ -7,6 +7,8 @@ from views.tabs.classes import Classes
 from views.tabs.teachers import Teachers
 from views.tabs.schedule import Schedule
 from views.tabs.school_fees import SchoolFees
+from views.tabs.notes import Notes
+from views.tabs.report_book import ReportBook
 
 roles = {
     'board' : {'admin': True, 'principal': True, 'préfet': False, 'secrétaire': False, 'économe': False, 'professeur': False},
@@ -93,6 +95,16 @@ class NavBar(ft.Column):
         elif e.control.name.value.lower() in (
                 languages['en']['menu school fees'].lower(), languages['fr']['menu school fees'].lower()):
             self.cp.my_content.controls.append(SchoolFees(self.cp))
+            self.cp.page.update()
+
+        elif e.control.name.value.lower() in (
+                languages['en']['menu notes'].lower(), languages['fr']['menu notes'].lower()):
+            self.cp.my_content.controls.append(Notes(self.cp))
+            self.cp.page.update()
+
+        elif e.control.name.value.lower() in (
+                languages['en']['menu report book'].lower(), languages['fr']['menu report book'].lower()):
+            self.cp.my_content.controls.append(ReportBook(self.cp))
             self.cp.page.update()
 
         else:

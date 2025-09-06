@@ -73,5 +73,5 @@ def convertir_date(date_str):
 
 
 def joindre_liste(my_list) -> str:
-    chaine_finale = ", ".join(my_list)
+    chaine_finale = "  ".join(my_list)
     return chaine_finale

@@ -1,5 +1,6 @@
 from utils.couleurs import *
-from utils.styles import login_style, drop_style, switch_style, ct_style, intern_ct_style, datatable_style, ml_style
+from utils.styles import (login_style, drop_style, switch_style, ct_style,
+                          intern_ct_style, datatable_style, ml_style, seq_ct_style)
 from components import OneStudent, MyTextButton, MyButton, DateSelection
 from services.async_functions.students_functions import *
 from services.async_functions.general_functions import *
@@ -38,33 +39,33 @@ class Students(ft.Container):
         self.search = ft.TextField(
             **login_style, prefix_icon='search', width=300, on_change=self.filter_datas
         )
-        self.table = ft.GridView(
-            expand=True,
-            max_extent=250,
-            child_aspect_ratio=0.8,
-            spacing=20,
-            run_spacing=20
-        )
+        # self.table = ft.GridView(
+        #     expand=True,
+        #     max_extent=270,
+        #     child_aspect_ratio=0.75,
+        #     spacing=20,
+        #     run_spacing=20
+        # )
+        self.table = ft.ListView(expand=True, spacing=7, divider_thickness=1)
 
-        self.active_sequence = ft.Text(size=13, font_family='PPM')
-        self.active_quarter = ft.Text(size=13, font_family='PPM')
+        self.active_sequence = ft.Text(size=14, font_family='PPB')
+        self.active_quarter = ft.Text(size=14, font_family='PPB')
         self.sequence_ct = ft.Container(
-            padding=5, border_radius=10, border=ft.border.all(1, BASE_COLOR),
-            alignment=ft.alignment.center,  # visible=False,
-            content=ft.Row(
+            **seq_ct_style, content=ft.Row(
                 controls=[
-                    ft.Icon(ft.Icons.CALENDAR_MONTH_ROUNDED, size=16, color='black'),
-                    self.active_sequence
-                ]
-            )
-        )
-        self.quarter_ct = ft.Container(
-            padding=5, border_radius=10, border=ft.border.all(1, BASE_COLOR),
-            alignment=ft.alignment.center,  # visible=False,
-            content=ft.Row(
-                controls=[
-                    ft.Icon(ft.Icons.CALENDAR_TODAY, size=16, color='black'),
-                    self.active_quarter
+                    ft.Row(
+                        [
+                            ft.Icon(ft.Icons.WATCH_LATER, size=20, color='black'),
+                            self.active_quarter
+                        ]
+                    ),
+                    ft.Text(" | ", size=16, font_family='PPM'),
+                    ft.Row(
+                        [
+                            ft.Icon(ft.Icons.CALENDAR_MONTH_ROUNDED, size=20, color='black'),
+                            self.active_sequence
+                        ]
+                    )
                 ]
             )
         )
@@ -76,7 +77,8 @@ class Students(ft.Container):
                             self.menu_button,
                             ft.Row(
                                 controls=[
-                                    ft.Text(languages[lang]['menu students'].capitalize(), size=24, font_family="PEB"),
+                                    ft.Text(languages[self.lang]['menu students'].capitalize(), size=24,
+                                            font_family="PEB"),
                                 ], spacing=0
                             )
                         ]
@@ -87,11 +89,10 @@ class Students(ft.Container):
                             ft.Text("Pilot", size=28, font_family="PEB"),
                         ], spacing=0
                     ),
-                    ft.Row([self.sequence_ct, self.quarter_ct])
+                    self.sequence_ct
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
             )
         )
-
         self.main_window = ft.Container(
             expand=True, padding=20, border_radius=16,
             content=ft.Column(
@@ -1518,101 +1519,104 @@ class Students(ft.Container):
                     ft.Row([ft.Icon("roofing", size=24, color='black'), self.report_class])
                 ], spacing=20
             ),
-            ft.Row(
-                [ft.Text(languages[self.lang]['details'].capitalize(), size=16, font_family='PEB')],
-                alignment=ft.MainAxisAlignment.START
-            ),
             ft.Container(
                 padding=0, border=ft.border.all(1, ft.Colors.GREY_300), border_radius=16,
                 expand=True,
                 content=ft.ListView(expand=True, controls=[self.report_table], height=200,),
             ),
-            ft.Row(
-                [ft.Text(languages[self.lang]['summary'].capitalize(), size=16, font_family="PEB")],
-                alignment=ft.MainAxisAlignment.START
-            ),
-            ft.Container(
-                padding=10, border_radius=16,
-                content=ft.Column(
-                    controls=[
-                        ft.Divider(height=1, thickness=1),
-                        ft.Row(
+            ft.Divider(color=ft.Colors.TRANSPARENT),
+            ft.Column(
+                spacing=5, controls=[
+                    ft.Row(
+                        [ft.Text(languages[self.lang]['summary'].capitalize(), size=16, font_family="PEB")],
+                        alignment=ft.MainAxisAlignment.START
+                    ),
+                    ft.Container(
+                        padding=10, border_radius=16,
+                        content=ft.Column(
                             controls=[
+                                ft.Divider(height=1, thickness=1),
                                 ft.Row(
                                     controls=[
-                                        ft.Text(languages[self.lang]['unjustified absence'].capitalize(), size=16,
-                                                font_family="PPM"),
-                                        self.count_unjustified
-                                    ]
+                                        ft.Row(
+                                            controls=[
+                                                ft.Text(languages[self.lang]['unjustified absence'].capitalize(),
+                                                        size=16,
+                                                        font_family="PPM"),
+                                                self.count_unjustified
+                                            ]
+                                        ),
+                                        ft.Row(
+                                            controls=[
+                                                ft.Text(languages[self.lang]['justified absence'].capitalize(), size=16,
+                                                        font_family="PPM"),
+                                                self.count_justified
+                                            ]
+                                        ),
+                                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
                                 ),
+                                ft.Divider(height=1, thickness=1),
                                 ft.Row(
                                     controls=[
-                                        ft.Text(languages[self.lang]['justified absence'].capitalize(), size=16,
-                                                font_family="PPM"),
-                                        self.count_justified
-                                    ]
+                                        ft.Row(
+                                            controls=[
+                                                ft.Text(languages[self.lang]['ban'].capitalize(), size=16,
+                                                        font_family="PPM"),
+                                                self.count_ban
+                                            ]
+                                        ),
+                                        ft.Row(
+                                            controls=[
+                                                ft.Text(languages[self.lang]['permanent ban'].capitalize(), size=16,
+                                                        font_family="PPM"),
+                                                self.count_permanent_ban
+                                            ]
+                                        ),
+                                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
                                 ),
-                            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
-                        ),
-                        ft.Divider(height=1, thickness=1),
-                        ft.Row(
-                            controls=[
+                                ft.Divider(height=1, thickness=1),
                                 ft.Row(
                                     controls=[
-                                        ft.Text(languages[self.lang]['ban'].capitalize(), size=16, font_family="PPM"),
-                                        self.count_ban
-                                    ]
+                                        ft.Row(
+                                            controls=[
+                                                ft.Text(languages[self.lang]['warning'].capitalize(), size=16,
+                                                        font_family="PPM"),
+                                                self.count_warning
+                                            ]
+                                        ),
+                                        ft.Row(
+                                            controls=[
+                                                ft.Text(languages[self.lang]['detention'].capitalize(), size=16,
+                                                        font_family="PPM"),
+                                                self.count_detention
+                                            ]
+                                        ),
+                                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
                                 ),
+                                ft.Divider(height=1, thickness=1),
                                 ft.Row(
                                     controls=[
-                                        ft.Text(languages[self.lang]['permanent ban'].capitalize(), size=16,
-                                                font_family="PPM"),
-                                        self.count_permanent_ban
-                                    ]
+                                        ft.Row(
+                                            controls=[
+                                                ft.Text(languages[self.lang]['reprimand'].capitalize(), size=16,
+                                                        font_family="PPM"),
+                                                self.count_reprimand
+                                            ]
+                                        ),
+                                        ft.Row(
+                                            controls=[
+                                                ft.Text(languages[self.lang]['late'].capitalize(), size=16,
+                                                        font_family="PPM"),
+                                                self.count_late
+                                            ], alignment=ft.MainAxisAlignment.CENTER
+                                        ),
+                                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
                                 ),
-                            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
-                        ),
-                        ft.Divider(height=1, thickness=1),
-                        ft.Row(
-                            controls=[
-                                ft.Row(
-                                    controls=[
-                                        ft.Text(languages[self.lang]['warning'].capitalize(), size=16,
-                                                font_family="PPM"),
-                                        self.count_warning
-                                    ]
-                                ),
-                                ft.Row(
-                                    controls=[
-                                        ft.Text(languages[self.lang]['detention'].capitalize(), size=16,
-                                                font_family="PPM"),
-                                        self.count_detention
-                                    ]
-                                ),
-                            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
-                        ),
-                        ft.Divider(height=1, thickness=1),
-                        ft.Row(
-                            controls=[
-                                ft.Row(
-                                    controls=[
-                                        ft.Text(languages[self.lang]['reprimand'].capitalize(), size=16,
-                                                font_family="PPM"),
-                                        self.count_reprimand
-                                    ]
-                                ),
-                                ft.Row(
-                                    controls=[
-                                        ft.Text(languages[self.lang]['late'].capitalize(), size=16,
-                                                font_family="PPM"),
-                                        self.count_late
-                                    ], alignment=ft.MainAxisAlignment.CENTER
-                                ),
-                            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
-                        ),
-                    ]
-                )
-            ),
+                            ]
+                        )
+                    ),
+                ]
+            )
 
         ]
 
