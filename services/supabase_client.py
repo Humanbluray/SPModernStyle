@@ -2,6 +2,7 @@ import os, pandas, openpyxl
 from dotenv import load_dotenv
 from pandas.io.common import file_path_to_url
 from supabase import create_client
+from supabase._sync.client import SyncClient
 
 load_dotenv()
 url = os.getenv('SUPABASE_URL')
@@ -19,7 +20,7 @@ school_republic_fr = os.getenv('SCHOOL_REPUBLIC_FR')
 school_republic_en = os.getenv('SCHOOL_REPUBLIC_EN')
 logo_url = os.getenv('LOGO_URL')
 
-supabase_client = create_client(url, key)
+supabase_client: SyncClient = create_client(url, key)
 
 # supabase_client.auth.sign_in_with_password(
 #     {"email": 'principal@mail.com', 'password': '123456'}

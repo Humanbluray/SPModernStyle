@@ -160,23 +160,42 @@ class Signin(ft.View):
                     refresh_token = session.refresh_token
                     user_id = user.id
 
-                    self.page.client_storage.set("access_token", access_token)
-                    self.page.client_storage.set("refresh_token", refresh_token)
-                    self.page.client_storage.set("user_id", user_id)
-                    self.page.client_storage.set("lang", language)
+                    # --- La partie corrigée ici ---
+                    status_response = supabase_client.table('users').select('active').eq('id', user_id).execute()
 
-                    user_data = supabase_client.table("users").select("role").eq("id", user_id).execute()
-                    if user_data.data:
-                        role = user_data.data[0]["role"]
-                        print(f"role: {role}")
-                        self.page.client_storage.set("role", role)
+                    # On s'assure qu'une réponse a bien été trouvée
+                    if status_response.data:
+                        user_status = status_response.data[0]['active']
 
-                    self.page.go(f"/home/{language}/{user_id}")
+                        if user_status:
+                            self.page.client_storage.set("access_token", access_token)
+                            self.page.client_storage.set("refresh_token", refresh_token)
+                            self.page.client_storage.set("user_id", user_id)
+                            self.page.client_storage.set("lang", language)
+
+                            user_data = supabase_client.table("users").select("role").eq("id", user_id).execute()
+                            if user_data.data:
+                                role = user_data.data[0]["role"]
+                                self.page.client_storage.set("role", role)
+
+                            self.page.go(f"/home/{language}/{user_id}")
+                            return
+
+                        else:
+                            self.box.title.value = languages[language]['success']
+                            self.message.value = languages[language]['user disabled']
+                            self.icon_message.name = ft.Icons.CHECK_CIRCLE
+                            self.icon_message.color = ft.Colors.LIGHT_GREEN
+                            self.box.open = True
+                            self.box.update()
+                    else:
+                        # L'utilisateur a une session Supabase mais pas de profil dans la table 'users'
+                        self.show_error_dialog(language, "invalid_credentials")
+                        return
+                else:
+                    # Si pas de session ou d'utilisateur (échec de la connexion)
+                    self.show_error_dialog(language, "invalid_credentials")
                     return
-
-                # Si pas de session ou d'utilisateur
-                self.show_error_dialog(language, "invalid_credentials")
-                return
 
             except Exception as e:
                 error_message = str(e).lower()

@@ -40,14 +40,14 @@
         "capacity": "capacité",
         "caution": "attention",
         "caution text": "les actions de cet onglet sont cruciales et certaines sont irréversibles. assurez-vous avant de clôturer une période que toute votre équipe est au diapason et que toutes les notes, absences, sanctions ont été entrées. les données d'une période clôturée sont verrouillées et ne peuvent donc plus être modifiées. clôturer une année est irréversible comme action. à manipuler avec précautions par le profil 'principal'",
-        "check missing notes": "l'application va checker les notes manquantes.",
+        "check missing notes": "vérification notes manquantes.",
         "checked classes": "classes vérifiées",
         "checking": "vérification",
         "choose language": "Choisir la langue",
         "class": "classe",
         "class and subject": "classe et matière",
         "class availability check": "vérification disponibilité de la classe",
-        "class checked": "classe vérifée",
+        "class checked": "classe en cours de vérification",
         "class creation success": "classe crée avec succès",
         "class details": "détails classe",
         "class print": "impression par classe",
@@ -363,7 +363,10 @@
         "year": "année",
         "yyyy": "AAAA",
         "display KPI": "afficher KPI",
-        "individual statistics": "statistiques individuelles"
+        "individual statistics": "statistiques individuelles",
+        "total classes": "nombre total de classes",
+        "user added": "Utilisateur ajouté",
+        "user disabled": "utilisateur désactivé"
     },
     "en": {
         "1- new school year": "1- new school year",
@@ -406,14 +409,14 @@
         "capacity": "capacity",
         "caution": "caution",
         "caution text": "The actions in this tab are crucial, and some are irreversible. Before closing a period, make sure that your entire team is on the same page and that all grades, absences, and penalties have been entered. Data for a closed period is locked and can no longer be modified. Closing a year is an irreversible action. It should be handled with care by the “main” profile",
-        "check missing notes": "The application will check for missing notes.",
+        "check missing notes": "check missing notes",
         "checked classes": "checked classes",
         "checking": "checking",
         "choose language": "Choose language",
         "class": "class",
         "class and subject": "class and subject",
         "class availability check": "class availability check",
-        "class checked": "class checked",
+        "class checked": "class under review",
         "class creation success": "class created succesfully",
         "class details": "class details",
         "class print": "print by class",
@@ -729,6 +732,9 @@
         "year": "year",
         "yyyy": "YYYY",
         "display KPI": "display KPI",
-        "individual statistics": "individual statistics"
+        "individual statistics": "individual statistics",
+        "total classes": "total number of classes",
+        "user added": "user added",
+        "user disabled": "user disabled"
     }
 }

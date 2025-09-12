@@ -25,7 +25,7 @@ class Home(ft.View):
         super().__init__(
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             vertical_alignment=ft.MainAxisAlignment.CENTER,
-            padding=0, bgcolor="white", route=f"/home/{language}/{user_id}"
+            padding=0, bgcolor='white', route=f"/home/{language}/{user_id}"
         )
         # paramètres de la classe...
         self.page = page
@@ -161,16 +161,15 @@ class Home(ft.View):
         )
 
         self.my_content = ft.Column(
-            expand=True
-        )
-
-        self.controls = [
-            ft.Column(
+            expand=True,
                 controls=[
                     ft.Text(languages[language]['loading screen'], size=18, font_family='PPR'),
                     ft.ProgressRing(color=BASE_COLOR)
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER
             )
+
+        self.controls = [
+            self.my_content
         ]
 
         # Overlays...
@@ -238,19 +237,17 @@ class Home(ft.View):
         print("[DEBUG] Construction de la vue principale")
 
         # Remplacement du ProgressRing par l'UI principale
-        self.controls.clear()
-        self.controls.append(
-            ft.Stack(
-                expand=True,
+        self.my_content.controls.clear()
+        self.my_content.controls.append(
+            ft.Row(
                 controls=[
-                    ft.Column(
-                        controls=[
-                            MyButton('menu', None, 100, lambda e: self.page.open(self.drawer)),
-                            ft.Divider(height=20, color=ft.Colors.TRANSPARENT)
-                        ]
+                    ft.IconButton(
+                        ft.Icons.MENU, icon_size=24, icon_color='black', on_click=lambda e: self.page.open(self.drawer)
                     ),
-                    self.my_content
-                ], alignment=ft.alignment.center
+                    ft.Container(
+                        border_radius=16, border=ft.border.all(1, ACCENT_PLUS_COLOR),
+                    )
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
             )
         )
         self.page.update()

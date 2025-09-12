@@ -129,8 +129,8 @@ class MyButton(ft.ElevatedButton):
 
     def hover_effect(self, e):
         if e.data == 'true':
-            self.title.scale =1.2
-            self.my_icon.scale =1.2
+            self.title.scale = 1.1
+            self.my_icon.scale = 1.1
             self.title.update()
             self.my_icon.update()
         else:
@@ -1013,8 +1013,8 @@ class OneTeacher(ft.ListTile):
         role = self.cp.cp.page.client_storage.get('role')
 
         if role not in ['admin', 'principal']:
-            self.cp.cp.box.title.value = languages[self.lang]['error']
-            self.cp.cp.message.value = languages[self.lang]['error rights']
+            self.cp.cp.box.title.value = languages[self.cp.lang]['error']
+            self.cp.cp.message.value = languages[self.cp.lang]['error rights']
             self.cp.cp.icon_message.name = ft.Icons.INFO_ROUNDED
             self.cp.cp.icon_message.color = 'red'
             self.cp.cp.box.open = True
