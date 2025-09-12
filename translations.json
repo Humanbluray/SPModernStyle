@@ -366,7 +366,8 @@
         "individual statistics": "statistiques individuelles",
         "total classes": "nombre total de classes",
         "user added": "Utilisateur ajouté",
-        "user disabled": "utilisateur désactivé"
+        "user disabled": "utilisateur désactivé",
+        "inactive": "inactif"
     },
     "en": {
         "1- new school year": "1- new school year",
@@ -735,6 +736,7 @@
         "individual statistics": "individual statistics",
         "total classes": "total number of classes",
         "user added": "user added",
-        "user disabled": "user disabled"
+        "user disabled": "user disabled",
+        "inactive": "inactive"
     }
 }

@@ -490,26 +490,27 @@ class Users(ft.Container):
         new_status = False
 
         try:
-            response = supabase_client.auth.admin.delete_user(user_id)
-
             supabase_client.table('users').update({'active': False}).eq('id', user_id).execute()
+            # response = supabase_client.auth.admin.delete_user(user_id)
+            #
+            #
+            #
+            # if response.data:
+            #     print(f"Le statut de l'utilisateur {user_id} a été mis à jour avec succès à '{new_status}'.")
 
-            if response.data:
-                print(f"Le statut de l'utilisateur {user_id} a été mis à jour avec succès à '{new_status}'.")
+            self.cp.box.title.value = languages[self.lang]['success']
+            self.cp.message.value = languages[self.lang]['user disabled']
+            self.cp.icon_message.name = ft.Icons.CHECK_CIRCLE
+            self.cp.icon_message.color = ft.Colors.LIGHT_GREEN
+            self.cp.box.open = True
+            self.cp.box.update()
 
-                self.cp.box.title.value = languages[self.lang]['success']
-                self.cp.message.value = languages[self.lang]['user disabled']
-                self.cp.icon_message.name = ft.Icons.CHECK_CIRCLE
-                self.cp.icon_message.color = ft.Colors.LIGHT_GREEN
-                self.cp.box.open = True
-                self.cp.box.update()
+            self.load_datas()
 
-                self.load_datas()
-
-                return response.data
-            else:
-                print(f"Erreur lors de la mise à jour du statut: {response.error.message}")
-                return response.error
+            #     return response.data
+            # else:
+            #     print(f"Erreur lors de la mise à jour du statut: {response.error.message}")
+            #     return response.error
 
         except Exception as e:
             print(f"Une erreur inattendue est survenue: {e}")
