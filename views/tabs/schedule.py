@@ -33,24 +33,10 @@ class Schedule(ft.Container):
 
         self.active_sequence = ft.Text(size=14, font_family='PPB')
         self.active_quarter = ft.Text(size=14, font_family='PPB')
-        self.sequence_ct = ft.Container(
-            **seq_ct_style, content=ft.Row(
-                controls=[
-                    ft.Row(
-                        [
-                            ft.Icon(ft.Icons.WATCH_LATER, size=20, color='black'),
-                            self.active_quarter
-                        ]
-                    ),
-                    ft.Text(" | ", size=16, font_family='PPM'),
-                    ft.Row(
-                        [
-                            ft.Icon(ft.Icons.CALENDAR_MONTH_ROUNDED, size=20, color='black'),
-                            self.active_sequence
-                        ]
-                    )
-                ]
-            )
+        self.sequence_ct = ft.Chip(
+            label=self.active_sequence,
+            leading=ft.Icon(ft.Icons.CALENDAR_MONTH_OUTLINED, size=16, color='black87'),
+            shape=ft.RoundedRectangleBorder(radius=16)
         )
         self.top_menu = ft.Container(
             padding=10, content=ft.Row(
@@ -60,18 +46,13 @@ class Schedule(ft.Container):
                             self.menu_button,
                             ft.Row(
                                 controls=[
-                                    ft.Text(languages[lang]['menu time table'].capitalize(), size=24, font_family="PEB"),
+                                    ft.Text(languages[self.lang]['menu time table'].capitalize(), size=24,
+                                            font_family="PEB"),
                                 ], spacing=0
                             )
                         ]
                     ),
-                    ft.Row(
-                        controls=[
-                            ft.Text("School", size=28, font_family="PEB", color=BASE_COLOR),
-                            ft.Text("Pilot", size=28, font_family="PEB"),
-                        ], spacing=0
-                    ),
-                    ft.Row([self.sequence_ct])
+                    self.sequence_ct
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
             )
         )

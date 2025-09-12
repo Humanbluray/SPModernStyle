@@ -680,6 +680,35 @@ async def insert_class_average(
         return response.json()
 
 
+async def get_fees_amount_by_year(access_token: str, year_id: str) -> Dict:
+    """
+
+    :param access_token:
+    :param year_id:
+    :return:
+    """
+    query_url = f"{url}/rest/v1/vw_fees_by_type_pivot"
+    params={
+        "select": "*",
+        "year_id": f"eq.{year_id}",
+    }
+    headers={
+        "apikey": key,
+        "Authorization": f"Bearer {access_token}"
+    }
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            query_url,
+            params=params,
+            headers=headers
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        if data:
+            return data[0]
+        return None
+
 
 
 
