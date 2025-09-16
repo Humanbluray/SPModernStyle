@@ -33,27 +33,17 @@ class Schedule(ft.Container):
 
         self.active_sequence = ft.Text(size=14, font_family='PPB')
         self.active_quarter = ft.Text(size=14, font_family='PPB')
-        self.sequence_ct = ft.Chip(
-            label=self.active_sequence,
-            leading=ft.Icon(ft.Icons.CALENDAR_MONTH_OUTLINED, size=16, color='black87'),
-            shape=ft.RoundedRectangleBorder(radius=16)
-        )
-        self.top_menu = ft.Container(
-            padding=10, content=ft.Row(
+        self.sequence_ct = ft.Container(
+            padding=ft.padding.only(7, 5, 7, 5),
+            border_radius=10,
+            border=ft.border.all(1, BASE_COLOR),
+            bgcolor=SECOND_COLOR,
+            alignment=ft.alignment.center,
+            content=ft.Row(
                 controls=[
-                    ft.Row(
-                        controls=[
-                            self.menu_button,
-                            ft.Row(
-                                controls=[
-                                    ft.Text(languages[self.lang]['menu time table'].capitalize(), size=24,
-                                            font_family="PEB"),
-                                ], spacing=0
-                            )
-                        ]
-                    ),
-                    self.sequence_ct
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                    ft.Icon('calendar_month_outlined', size=16, color='black'),
+                    self.active_sequence
+                ]
             )
         )
         self.monday = ft.Column()
@@ -73,7 +63,10 @@ class Schedule(ft.Container):
             **drop_style, width=300, prefix_icon='person_outlined', label=languages[lang]['name'],
             on_change=self.on_search_change, menu_height=200, visible=False
         )
-        self.bt_prof_details = MyTextButton(languages[lang]['affectations details'], self.open_prof_details_window)
+        self.bt_prof_details = MyTextButton(
+            languages[lang]['affectations details'], ft.Icons.ASSIGNMENT_IND_OUTLINED,
+            self.open_prof_details_window
+        )
         self.bt_prof_details.visible = False
         self.new_prof = ft.Text(size=16, font_family='PPM')
         self.new_prof_id = ft.Text(visible=True)
@@ -199,7 +192,8 @@ class Schedule(ft.Container):
         self.prof_det_table = ft.DataTable(
             **datatable_style, columns=[
                 ft.DataColumn(ft.Text(choice)) for choice in [
-                    languages[lang]['day'], languages[lang]['slot'], languages[lang]['class'], languages[lang]['subject'],
+                    languages[lang]['day'], languages[lang]['slot'],
+                    languages[lang]['class'], languages[lang]['subject'],
                 ]
             ]
         )
@@ -242,7 +236,6 @@ class Schedule(ft.Container):
             )
         )
 
-
         # -------------------------------------------------------
         # fin des objet de la vue par professeurs...
 
@@ -253,7 +246,10 @@ class Schedule(ft.Container):
             **drop_style, width=200, prefix_icon='roofing', label=languages[lang]['class'],
             on_change=self.c_on_class_change, menu_height=200, visible=False
         )
-        self.check_class_button = MyTextButton(languages[lang]['affectations details'], self.open_details_window)
+        self.check_class_button = MyTextButton(
+            languages[lang]['affectations details'], ft.Icons.FORMAT_LIST_BULLETED_OUTLINED,
+            self.open_details_window
+        )
         self.check_class_button.visible = False
 
         # New affectation window...
@@ -473,26 +469,33 @@ class Schedule(ft.Container):
 
         # Main window...
         self.main_window = ft.Container(
-            expand=True,
+            expand=True, padding=20, border_radius=16,
             content=ft.Column(
                 expand=True,
                 controls=[
-                    self.top_menu,
                     ft.Container(
                         padding=ft.padding.only(10, 0,10, 0),
                         content=ft.Row(
                             controls=[
                                 ft.Row(
                                     controls=[
-                                        MyTextButton(languages[lang]['teacher view'], self.pass_to_teacher_view),
-                                        MyTextButton(languages[lang]['class view'], self.pass_to_class_view)
+                                        MyTextButton(
+                                            languages[lang]['teacher view'], 'assign_ind_outlined',
+                                            self.pass_to_teacher_view
+                                        ),
+                                        MyTextButton(
+                                            languages[lang]['class view'], 'roofing_outlined',
+                                            self.pass_to_class_view
+                                        ),
+                                        self.sequence_ct
                                     ]
                                 ),
                                 ft.Row(
                                     controls=[
                                         ft.Row(
                                             controls=[
-                                                self.search_prof, self.bt_prof_details, self.search_class, self.check_class_button
+                                                self.search_prof, self.bt_prof_details,
+                                                self.search_class, self.check_class_button
                                             ]
                                         )
                                     ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
@@ -543,12 +546,16 @@ class Schedule(ft.Container):
         # La surcouche (ct_registrations) est mise en avant
         window_to_show.visible = True
         window_to_show.opacity = 1
+        self.cp.top_menu.opacity = 0.1
+        self.cp.top_menu.disabled = True
         self.cp.page.update()
 
     def hide_one_window(self, window_to_hide):
         # La surcouche est masquée
         window_to_hide.visible = False
         window_to_hide.opacity = 0
+        self.cp.top_menu.opacity = 1
+        self.cp.top_menu.disabled = False
         self.cp.page.update()
 
     @staticmethod

@@ -16,6 +16,8 @@ def main(page: ft.Page):
         "PPM": "/fonts/Figtree-Medium.ttf",
         "PPB": "/fonts/Figtree-Bold.ttf",
         "PEB": "/fonts/Figtree-ExtraBold.ttf",
+        "PPI": "/fonts/Figtree-Italic.ttf",
+        "PME": "/fonts/Poppins-Medium.ttf",
     }
 
     route_views = {
@@ -66,6 +68,5 @@ def main(page: ft.Page):
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 8080))
     ft.app(
-        target=main, assets_dir='assets', route_url_strategy='default', port=port,
-        # view=ft.AppView.WEB_BROWSER
+        target=main, assets_dir='assets', route_url_strategy='#', port=port,
     )

@@ -1,6 +1,6 @@
 from utils.couleurs import *
 from translations.translations import languages
-from utils.styles import drop_style, login_style, outline_style
+from utils.styles import drop_style, login_style, outline_style, dash_style
 from services.supabase_client import supabase_client
 from services.async_functions.students_functions import *
 from services.async_functions.teachers_functions import *
@@ -113,7 +113,7 @@ class MyButton(ft.ElevatedButton):
             elevation=0,
         )
         self.title = ft.Text(
-            title.capitalize(), size=16, font_family="PPM",
+            title.capitalize(), size=14, font_family="PPM",
             scale=ft.Scale(1), animate_scale=ft.Animation(300, ft.AnimationCurve.EASE_OUT_CUBIC),
         )
         self.my_icon = ft.Icon(
@@ -180,9 +180,13 @@ class MyColorButton(ft.ElevatedButton):
             self.my_icon.update()
 
 
-class OneStudent(ft.ListTile):
+class OneStudent(ft.Container):
     def __init__(self, cp: object, infos: dict):
         super().__init__(
+            bgcolor='white', padding=10, border_radius=16,
+            on_hover=self.effect_hover,
+            scale=ft.Scale(1),
+            animate_scale=ft.Animation(300, ft.AnimationCurve.EASE)
         )
         self.infos = infos
         self.cp = cp
@@ -198,20 +202,26 @@ class OneStudent(ft.ListTile):
             gender_bg_color = ft.Colors.PINK_50
 
         self.rep_container = ft.Container(
-            alignment=ft.alignment.center, width=30, shape=ft.BoxShape.CIRCLE, bgcolor='red',
-            content=ft.Text('R', size=13, font_family='PEB', color='white'),
+            alignment=ft.alignment.center,
+            width=30,
+            shape=ft.BoxShape.CIRCLE,
+            border=ft.border.all(1, 'red'),
+            content=ft.Text('R', size=13, font_family='PPR', color='red'),
             visible=True if infos['repeater'] else False
         )
         self.new_container = ft.Container(
-            alignment=ft.alignment.center, width=30, shape=ft.BoxShape.CIRCLE, bgcolor='teal',
-            content=ft.Text('N', size=13, font_family='PEB', color='white'),
+            alignment=ft.alignment.center,
+            width=30,
+            shape=ft.BoxShape.CIRCLE,
+            border=ft.border.all(1, 'teal'),
+            content=ft.Text('N', size=13, font_family='PPR', color='teal'),
             visible=True if not infos['repeater'] else False
         )
 
-        self.title=ft.Text(f"{infos['student_name']} {infos['student_surname']}".upper(), size=18, font_family='PPM')
+        self.title=ft.Text(f"{infos['student_name']} {infos['student_surname']}".upper(), size=15, font_family='PPM')
         self.subtitle=ft.Row(
             controls=[
-                ft.Text(f"{infos['class_code']}", size=16, font_family='PPM', color='grey'),
+                ft.Text(f"{infos['class_code']}", size=14, font_family='PPM', color='grey'),
                 ft.Row([self.new_container, self.rep_container])
             ]
         )
@@ -223,8 +233,8 @@ class OneStudent(ft.ListTile):
                 ft.PopupMenuItem(
                     content=ft.Row(
                         controls=[
-                            ft.Icon(ft.Icons.CONTACT_PAGE, size=18, color='black'),
-                            ft.Text(languages[self.cp.lang]['student file'].capitalize(), size=18,
+                            ft.Icon(ft.Icons.CONTACT_PAGE, size=16, color='black'),
+                            ft.Text(languages[self.cp.lang]['student file'].capitalize(), size=14,
                                     font_family="PPM")
                         ]
                     ), on_click=self.open_edit_window, data=infos
@@ -232,8 +242,8 @@ class OneStudent(ft.ListTile):
                 ft.PopupMenuItem(
                     content=ft.Row(
                         controls=[
-                            ft.Icon(ft.Icons.ATTACH_MONEY, size=18, color='black'),
-                            ft.Text(languages[self.cp.lang]['school fees'].capitalize(), size=18,
+                            ft.Icon(ft.Icons.ATTACH_MONEY, size=16, color='black'),
+                            ft.Text(languages[self.cp.lang]['school fees'].capitalize(), size=14,
                                     font_family="PPM")
                         ]
                     ), on_click=self.open_school_fees_window, data=infos,
@@ -241,16 +251,16 @@ class OneStudent(ft.ListTile):
                 ft.PopupMenuItem(
                     content=ft.Row(
                         controls=[
-                            ft.Icon(ft.Icons.EMERGENCY, size=18, color='black'),
-                            ft.Text('discipline'.capitalize(), size=18, font_family="PPM")
+                            ft.Icon(ft.Icons.EMERGENCY, size=16, color='black'),
+                            ft.Text('discipline'.capitalize(), size=14, font_family="PPM")
                         ]
                     ), on_click=self.open_report_window, data=infos,
                 ),
                 ft.PopupMenuItem(
                     content=ft.Row(
                         controls=[
-                            ft.Icon(ft.Icons.FILE_PRESENT, size=18, color='black'),
-                            ft.Text(languages[self.cp.lang]['print receipt'].capitalize(), size=18,
+                            ft.Icon(ft.Icons.FILE_PRESENT, size=16, color='black'),
+                            ft.Text(languages[self.cp.lang]['print receipt'].capitalize(), size=14,
                                     font_family="PPM"),
                             ft.IconButton(
                                 ft.Icons.ATTACH_FILE, icon_size=18, icon_color='black',
@@ -262,7 +272,9 @@ class OneStudent(ft.ListTile):
                 )
             ]
         )
-
+        self.content = ft.ListTile(
+            title=self.title, subtitle=self.subtitle, leading=self.leading, trailing=self.trailing
+        )
 
     def open_edit_window(self, e):
         self.cp.edit_id_student = self.infos['student_id']
@@ -408,32 +420,33 @@ class OneStudent(ft.ListTile):
 
     def effect_hover(self, e):
         if e.data == 'true':
-            self.ct.scale = 1.1
-            self.ct.update()
+            self.scale = 1.02
+            self.update()
         else:
-            self.ct.scale = 1
-            self.ct.update()
+            self.scale = 1
+            self.update()
 
 
 class MyTextButton(ft.TextButton):
-    def __init__(self, title: str, click):
+    def __init__(self, title: str, my_icon: str, click):
         super().__init__(
             content=ft.Row(
                 [
-                    ft.Text(title.capitalize(), size=16, font_family='PPM'),
+                    ft.Icon(my_icon, size=16, color=BASE_COLOR),
+                    ft.Text(title.capitalize(), size=14, font_family='PPM'),
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
                 spacing=5,
             ), on_click=click,
             style=ft.ButtonStyle(
                 bgcolor={
-                    ft.ControlState.HOVERED: SECOND_COLOR,
-                    ft.ControlState.DEFAULT: BASE_COLOR,
+                    ft.ControlState.HOVERED: MAIN_COLOR,
+                    ft.ControlState.DEFAULT: SECOND_COLOR,
                 },
                 # Couleurs du texte par défaut et au survol
                 color={
-                    ft.ControlState.HOVERED: BASE_COLOR,
-                    ft.ControlState.DEFAULT: ft.Colors.WHITE,
+                    ft.ControlState.HOVERED: ft.Colors.BLACK,
+                    ft.ControlState.DEFAULT: BASE_COLOR,
                 },
             )
 
@@ -507,6 +520,7 @@ class SingleOption(ft.Container):
         )
         self.cp = cp
         self.name = name
+        self.data = name
         self.selected: bool = False
         self.element = ft.Text(name, size=13, font_family='PPM', color='black54')
         self.content=self.element
@@ -935,10 +949,11 @@ class BoxStudentNote(ft.Container):
         self.check.update()
 
 
-class OneTeacher(ft.ListTile):
+class OneTeacher(ft.Container):
     def __init__(self, cp: object, infos: dict):
         super().__init__(
-            on_click=self.open_edit_teacher_window
+            on_click=self.open_edit_teacher_window, 
+            border_radius=16, padding=10, bgcolor='white'
         )
         self.cp = cp
         self.infos = infos
@@ -964,6 +979,9 @@ class OneTeacher(ft.ListTile):
         self.trailing = ft.IconButton(
             ft.Icons.CALENDAR_MONTH, icon_color='black87', icon_size=24,
             on_click=self.open_schedule_window
+        )
+        self.content = ft.ListTile(
+            title=self.title, subtitle=self.subtitle, leading=self.leading, trailing=self.trailing
         )
 
 
@@ -1065,13 +1083,13 @@ class ColoredIcon(ft.Container):
         super().__init__(
             bgcolor=bg_color, alignment=ft.alignment.center, padding=5,
             # border=ft.border.all(1, color),
-            width=30, height=30, shape=ft.BoxShape.CIRCLE,
-            content=ft.Icon(my_icon, size=14, color=color), scale=0.9
+            width=35, height=35, shape=ft.BoxShape.CIRCLE,
+            content=ft.Icon(my_icon, size=20, color=color),
         )
 
 
 class BarGraphic(ft.BarChart):
-    def __init__(self, infos: list, max_value: int):
+    def __init__(self, infos: list, max_value: int, title: str):
         super().__init__(
             bar_groups=[
                 ft.BarChartGroup(
@@ -1080,26 +1098,28 @@ class BarGraphic(ft.BarChart):
                         ft.BarChartRod(
                             from_y=0,
                             to_y=infos[i]['value'],
-                            width=10,  # Largeur de la barre
+                            width=30,  # Largeur de la barre
                             color=infos[i]['color'],  # Couleur principale
                             tooltip=infos[i]['label'],
                             border_radius=24,  # Bords arrondis
-                            bg_to_y=max_value + 10,  # Hauteur de la zone de fond
+                            bg_to_y=max_value + 3,  # Hauteur de la zone de fond
                             bg_color=infos[i]['bg_color'],  # Couleur de fond
                         )
                     ]
                 )
                 for i in range(len(infos))
             ],
-
+            left_axis=ft.ChartAxis(
+                labels_size=40, title=ft.Text(title, size=14, font_family='PPM'), title_size=40
+            ),
             bottom_axis=ft.ChartAxis(
                 labels=[
-                    ft.ChartAxisLabel(value=i, label=ft.Text(infos[i]['label'].upper(), size=11, font_family='PPI', color='grey'))
+                    ft.ChartAxisLabel(value=i, label=ft.Text(infos[i]['label'].upper(), size=16, font_family='PPM'))
                     for i in range(len(infos))
                 ],
                 labels_size=40,
             ),
-            max_y=max_value + 10,  # Définit la hauteur maximale de l'axe Y
+            max_y=max_value + 3,  # Définit la hauteur maximale de l'axe Y
             interactive=True,
             expand=True,
         )
@@ -1217,5 +1237,92 @@ class OneClassRoom(ft.ListTile):
     def show_class_details(self, e):
         self.cp.run_async_in_thread(self.open_details_window(e))
 
+
+class DashContainer(ft.Container):
+    def __init__(self, icon: str, color: dict, title: str, data: ft.Text):
+        super().__init__(
+            **dash_style,
+            # border=ft.border.only(bottom=ft.BorderSide(3, color['icon_color'])),
+            content=ft.Column(
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    ColoredIcon(icon, color['icon_color'], color['bg_color']),
+                    data,
+                    ft.Row(
+                        controls=[
+                            ft.Text(title.upper(), size=12,font_family='PPM',color=color['icon_color'])
+                        ], alignment=ft.MainAxisAlignment.START
+                    ),
+
+                ]
+            )
+        )
+
+
+class LanguageButton(ft.Container):
+    def __init__(self, cp: object, name: str, data: str, selected: bool):
+        super().__init__(
+            bgcolor='grey100' if not selected else EMERALD_GREEN,
+            alignment=ft.alignment.center, border_radius=10,
+            padding=ft.padding.only(5, 5, 5, 5)
+        )
+        self.cp = cp
+        self.name = name
+        self.data = data
+        self.selected = selected
+        self.element = ft.Text(
+            name, size=16, font_family='PPM',
+            color='black54' if not selected else 'white'
+        )
+        self.content=self.element
+
+    def set_unselected(self):
+        self.selected = False
+        self.bgcolor = 'grey100'
+        self.element.color = 'black54'
+        self.element.update()
+
+    def set_selected(self):
+        self.selected = True
+        self.bgcolor = EMERALD_GREEN
+        self.element.color = 'white'
+        self.element.update()
+
+
+
+class LanguageSelection(ft.Container):
+    def __init__(self, cp: object):
+        super().__init__()
+        self.cp = cp
+        self.french = LanguageButton(
+            self.cp, 'français', "fr", True
+        )
+        self.english = LanguageButton(
+            self.cp, 'anglais', "en", False
+        )
+        self.content = ft.Row(
+            [self.french, self.english]
+        )
+
+        for widget in [self.french, self.english]:
+            widget.on_click = self.click_on_option
+
+    def click_on_option(self, e):
+        for widget in [self.french, self.english]:
+            widget.set_unselected()
+
+        e.control.set_selected()
+        self.cp.selected_language = e.control.data
+
+        lang = self.cp.selected_language
+        self.cp.choose_text.value = languages[lang]['choose language']
+        self.cp.connect_button.content.controls[1].value = languages[lang]['sign in']
+        self.cp.login_text.value = languages[lang]['login'].capitalize()
+        self.cp.password.label = languages[lang]['password']
+        self.cp.info_text.value = languages[lang]['enter informations']
+        self.cp.welcome_text.value = languages[lang]['welcome to SP']
+        self.cp.page.update()
+
+        self.cp.page.update()
 
 

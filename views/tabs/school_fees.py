@@ -111,24 +111,6 @@ class SchoolFees(ft.Container):
             leading=ft.Icon(ft.Icons.CALENDAR_MONTH_OUTLINED, size=16, color='black87'),
             shape=ft.RoundedRectangleBorder(radius=16)
         )
-        self.top_menu = ft.Container(
-            padding=10, content=ft.Row(
-                controls=[
-                    ft.Row(
-                        controls=[
-                            self.menu_button,
-                            ft.Row(
-                                controls=[
-                                    ft.Text(languages[self.lang]['menu school fees'].capitalize(), size=24,
-                                            font_family="PEB"),
-                                ], spacing=0
-                            )
-                        ]
-                    ),
-                    self.sequence_ct
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
-            )
-        )
         # widget
         self.search_class = ft.Dropdown(
             **drop_style,
@@ -178,14 +160,22 @@ class SchoolFees(ft.Container):
             expand=True, padding=20, border_radius=16,
             content=ft.Column(
                 controls=[
-                    self.top_menu,
                     ft.Row(
                         controls=[
                             ft.Row(
                                 controls=[
-                                    MyTextButton(languages[self.lang]['export pdf'], None),
-                                    MyTextButton(languages[self.lang]['export excel'], None),
-                                    MyTextButton(languages[self.lang]['display KPI'], self.open_ki_window),
+                                    MyTextButton(
+                                        languages[self.lang]['export pdf'], ft.Icons.DOWNLOAD_OUTLINED,
+                                        None
+                                    ),
+                                    MyTextButton(
+                                        languages[self.lang]['export excel'], ft.Icons.DOWNLOAD_OUTLINED,
+                                        None
+                                    ),
+                                    MyTextButton(
+                                        languages[self.lang]['display KPI'], ft.Icons.DATA_USAGE_OUTLINED,
+                                        self.open_ki_window
+                                    ),
                                 ]
                             ),
                             ft.Row(
@@ -724,10 +714,14 @@ class SchoolFees(ft.Container):
         # La surcouche (ct_registrations) est mise en avant
         window_to_show.visible = True
         window_to_show.opacity = 1
+        self.cp.top_menu.opacity = 0.2
+        self.cp.top_menu.disabled = True
         self.cp.page.update()
 
     def hide_one_window(self, window_to_hide):
         # La surcouche est masquée
         window_to_hide.visible = False
         window_to_hide.opacity = 0
+        self.cp.top_menu.opacity = 1
+        self.cp.top_menu.disabled = False
         self.cp.page.update()

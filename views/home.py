@@ -1,9 +1,16 @@
+import ftplib
+
+from utils.styles import dash_style
 from components import *
 from translations.translations import languages
 from services.supabase_client import supabase_client
 import asyncio
-from services.async_functions.general_functions import get_active_quarter, get_active_sequence, get_current_year_id, get_current_year_label, get_current_year_short
+from services.async_functions.general_functions import (get_active_quarter, get_active_sequence,
+                                                        get_current_year_id, get_current_year_label, get_current_year_short)
 from views.tabs.students import Students
+from services.async_functions.dashboard_functions import *
+from components.menu import NavBar
+from utils.useful_functions import *
 from components.menu import NavBar
 
 roles = {
@@ -19,13 +26,29 @@ roles = {
     'years' : {'admin': False, 'principal': True, 'préfet': False, 'secrétaire': False, 'économe': False, 'professeur': False},
 }
 
+couleurs = {
+    'red': {'icon_color': 'red', 'bg_color': 'red50'},
+    'green': {'icon_color': 'green', 'bg_color': 'green50'},
+    'amber': {'icon_color': 'amber', 'bg_color': 'amber50'},
+    'deeppurple': {'icon_color': 'deeppurple', 'bg_color': 'deeppurple50'},
+    'deeporange': {'icon_color': 'deeporange', 'bg_color': 'deeporange50'},
+    'orange': {'icon_color': 'orange', 'bg_color': 'orange50'},
+    'pink': {'icon_color': 'pink', 'bg_color': 'pink50'},
+    'purple': {'icon_color': 'purple', 'bg_color': 'purple50'},
+    'blue': {'icon_color': 'blue', 'bg_color': 'blue50'},
+    'indigo': {'icon_color':    'indigo', 'bg_color':   'indigo50'},
+    'brown': {'icon_color': 'brown', 'bg_color': 'brown50'},
+    'lime': {'icon_color': 'lime', 'bg_color': 'lime50'},
+    'teal': {'icon_color': 'teal', 'bg_color': 'teal50'},
+}
+
 
 class Home(ft.View):
     def __init__(self, page: ft.Page, language: str, user_id:str):
         super().__init__(
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             vertical_alignment=ft.MainAxisAlignment.CENTER,
-            padding=0, bgcolor='white', route=f"/home/{language}/{user_id}"
+            padding=0, bgcolor=MAIN_COLOR, route=f"/home/{language}/{user_id}"
         )
         # paramètres de la classe...
         self.page = page
@@ -39,125 +62,58 @@ class Home(ft.View):
         # infos user...
         self.user_name = ft.Text("", size=18, font_family='PPB')
         self.user_surname = ft.Text("", size=16, font_family='PPM')
-        self.user_image = ft.CircleAvatar(radius=30)
+        self.user_image = ft.CircleAvatar(radius=20)
 
         # Notifications...
-        self.nb_notifications = ft.Text("2", size=10, font_family="PPB", color="white")
-        self.notifications_cloud = ft.Container(
-            visible=True, alignment=ft.alignment.center, shape=ft.BoxShape.CIRCLE, width=20,
-            content=self.nb_notifications, bgcolor='red', padding=3
+        self.nb_notifications = 2
+        self.notif_badge = ft.Badge(
+            text_color="white", text=f"{self.nb_notifications}", bgcolor='red',
+            label_visible=True if self.nb_notifications > 0 else False
         )
-        self.notifs_container = ft.Stack(
-            controls=[
-                ft.Container(
-                    bgcolor='#f0f0f6', alignment=ft.alignment.center, shape=ft.BoxShape.CIRCLE,
-                    content=ft.Icon(ft.Icons.NOTIFICATIONS, color='black', size=20), height=45,
-                    padding=10,
-                    on_click=None
-                ),
-                self.notifications_cloud
-            ], alignment=ft.alignment.top_right
+        self.ct_notifs = ft.Container(
+            alignment=ft.alignment.center,
+            bgcolor=MAIN_COLOR,
+            padding=10,
+            shape=ft.BoxShape.CIRCLE,
+            width=50,
+            on_click=lambda e: print('view notifications'),
+            badge=self.notif_badge,
+            content=ft.Icon(ft.Icons.NOTIFICATIONS, color='black87', size=18),
         )
 
-        for i in range(10): # juste pour garder à portée de main
-            role = self.page.client_storage.get('role')
-            # Menus utilisateurs en fonction du rôle...
-            self.board_menu = ft.NavigationDrawerDestination(
-                label=languages[self.language]['menu board'],
-                icon=ft.Icon(ft.Icons.DASHBOARD_OUTLINED, size=24, color="grey"),
-                selected_icon=ft.Icon(ft.Icons.DASHBOARD, size=24, color="black"),
-                visible=roles['board'][role]
-            )
-            self.students_menu = ft.NavigationDrawerDestination(
-                label=languages[self.language]['menu students'],
-                icon=ft.Icon(ft.Icons.PERSON_OUTLINE_OUTLINED, size=24, color="grey"),
-                selected_icon=ft.Icon(ft.Icons.PERSON, size=24, color="black"),
-                visible=roles['students'][role]
-            )
-            self.classes_menu = ft.NavigationDrawerDestination(
-                label=languages[self.language]['menu classes'],
-                icon=ft.Icon(ft.Icons.ROOFING, size=24, color="grey"),
-                selected_icon=ft.Icon(ft.Icons.ROOFING, size=24, color="black"),
-                visible=roles['classes'][role]
-            )
-            self.teachers_menu = ft.NavigationDrawerDestination(
-                label=languages[self.language]['menu teachers'],
-                icon=ft.Icon(ft.Icons.SUPERVISOR_ACCOUNT_OUTLINED, size=24, color="grey"),
-                selected_icon=ft.Icon(ft.Icons.SUPERVISOR_ACCOUNT, size=24, color="black"),
-                visible=roles['teachers'][role]
-            )
-            self.schedule_menu = ft.NavigationDrawerDestination(
-                label=languages[self.language]['menu time table'],
-                icon=ft.Icon(ft.Icons.EVENT_AVAILABLE_OUTLINED, size=24, color="grey"),
-                selected_icon=ft.Icon(ft.Icons.EVENT_AVAILABLE_ROUNDED, size=24, color="black"),
-                visible=roles['timetable'][role]
-            )
-            self.fees_menu = ft.NavigationDrawerDestination(
-                label=languages[self.language]['menu school fees'],
-                icon=ft.Icon(ft.Icons.ATTACH_MONEY_OUTLINED, size=24, color="grey"),
-                selected_icon=ft.Icon(ft.Icons.ATTACH_MONEY_ROUNDED, size=24, color="black"),
-                visible=roles['school_fees'][role]
-            )
-            self.menu_notes = ft.NavigationDrawerDestination(
-                label=languages[self.language]['menu notes'],
-                icon=ft.Icon(ft.Icons.CONTENT_COPY_OUTLINED, size=24, color="grey"),
-                selected_icon=ft.Icon(ft.Icons.CONTENT_COPY_ROUNDED, size=24, color="black"),
-                visible=roles['notes'][role]
-            )
-            self.report_menu = ft.NavigationDrawerDestination(
-                label=languages[self.language]['menu report book'],
-                icon=ft.Icon(ft.Icons.SCHOOL_OUTLINED, size=24, color="grey"),
-                selected_icon=ft.Icon(ft.Icons.SCHOOL_ROUNDED, size=24, color="black"),
-                visible=roles['report_book'][role]
-            )
-            self.years_menu = ft.NavigationDrawerDestination(
-                label=languages[self.language]['menu academic years'],
-                icon=ft.Icon(ft.Icons.CALENDAR_TODAY_OUTLINED, size=24, color="grey"),
-                selected_icon=ft.Icon(ft.Icons.CALENDAR_TODAY_ROUNDED, size=24, color="black"),
-                visible=roles['years'][role]
-            )
-            self.users_menu = ft.NavigationDrawerDestination(
-                label=languages[self.language]['menu users'],
-                icon=ft.Icon(ft.Icons.SETTINGS_OUTLINED, size=24, color="grey"),
-                selected_icon=ft.Icon(ft.Icons.SETTINGS_ROUNDED, size=24, color="black"),
-                visible=roles['users'][role]
-            )
-
-        # Navigation drawer...
-        self.drawer = ft.NavigationDrawer(
-            controls=[
-                ft.Container(
-                    content=ft.Row(
+        self.top_menu = ft.Container(
+            bgcolor="white", padding=ft.padding.only(10, 8, 10, 8),
+            shadow=ft.BoxShadow(blur_radius=8, color=ft.Colors.with_opacity(0.15, "black")),
+            content=ft.Row(
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                controls=[
+                    ft.Row(
                         controls=[
-                            ft.Row(
-                                controls=[
-                                    self.user_image,
-                                    ft.Column([self.user_name, self.user_surname], spacing=0)
-                                ]
-                            ),
-                            ft.Row(
-                                controls=[
-                                    self.notifs_container,
-                                    ft.IconButton(
-                                        ft.Icons.LOGOUT_OUTLINED, icon_size=24, icon_color='black',
-                                        on_click=self.logout
-                                    )
-                                ]
-                            )
-                        ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                            ft.Text("School", size=24, font_family="PEB", color=BASE_COLOR),
+                            ft.Text("Pilot", size=24, font_family="PEB")
+                        ], spacing=0
                     ),
-                    padding=10,
-                ),
-                ft.Divider(height=1, thickness=1),
-                ft.Divider(height=10, color=ft.Colors.TRANSPARENT),
-                NavBar(self)
-                # self.board_menu, self.students_menu, self.classes_menu,
-                # self.teachers_menu, self.schedule_menu, self.fees_menu,
-                # self.menu_notes, self.report_menu, self.years_menu,
-                # self.users_menu
-            ],
-            indicator_color=BASE_COLOR, selected_index=-1,
-            tile_padding=5,
+                    NavBar(self),
+                    ft.Row(
+                        controls=[
+
+                            ft.Container(
+                                content=self.user_image,
+                                on_click=None
+                            ),
+                            self.ct_notifs
+                        ], spacing=2
+                    )
+                ]
+            )
+        )
+        
+        self.active_sequence = ft.Text(size=14, font_family='PPB')
+        self.active_quarter = ft.Text(size=14, font_family='PPB')
+        self.sequence_ct = ft.Chip(
+            label=self.active_sequence,
+            leading=ft.Icon(ft.Icons.CALENDAR_MONTH_OUTLINED, size=16, color='black87'),
+            shape=ft.RoundedRectangleBorder(radius=16)
         )
 
         self.my_content = ft.Column(
@@ -165,11 +121,103 @@ class Home(ft.View):
                 controls=[
                     ft.Text(languages[language]['loading screen'], size=18, font_family='PPR'),
                     ft.ProgressRing(color=BASE_COLOR)
-                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER
+                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.CENTER
+
             )
 
+        # Kpi________________________________________
+        self.nb_students = ft.Text(size=30, font_family="PEB")
+        self.nb_classes = ft.Text(size=30, font_family="PEB")
+        self.fill_rate = ft.Text(size=30, font_family="PEB")
+
+        # professeurs et affectations...
+        self.nb_affected_hours = ft.Text(size=30, font_family="PEB")
+        self.nb_teachers = ft.Text(size=30, font_family="PEB")
+        self.nb_hours_non_affected = ft.Text(size=30, font_family="PEB")
+        self.nb_affectations_rate = ft.Text(size=30, font_family="PEB")
+
+        self.bloc_profs = ft.Container(
+            padding=20, bgcolor='white', border_radius=24,
+            content=ft.Row(
+                controls=[
+                    DashContainer(
+                        ft.Icons.GROUP_OUTLINED, couleurs['deeppurple'], languages[self.language]['head count'],
+                        self.nb_students
+                    ),
+                    ft.VerticalDivider(width=50, thickness=1),
+                    DashContainer(
+                        ft.Icons.ROOFING, couleurs['orange'], 'nb classes',
+                        self.nb_classes
+                    ),
+                    ft.VerticalDivider(width=50, thickness=1),
+                    DashContainer(
+                        ft.Icons.PIE_CHART_OUTLINE_OUTLINED, couleurs['blue'],
+                        languages[self.language]['fill rate'],
+                        self.fill_rate
+                    ),
+                    ft.VerticalDivider(width=50, thickness=1),
+                    DashContainer(
+                        ft.Icons.SUPERVISOR_ACCOUNT_OUTLINED, couleurs['green'],
+                        languages[self.language]['menu teachers'], self.nb_teachers
+                    ),
+                    ft.VerticalDivider(width=30, thickness=1),
+                    DashContainer(
+                        ft.Icons.TIMER_OUTLINED, couleurs['red'],
+                        languages[self.language]['nb hours affected'], self.nb_affected_hours
+                    ),
+                    ft.VerticalDivider(width=30, thickness=1),
+                    DashContainer(
+                        ft.Icons.WATCH_LATER_OUTLINED, couleurs['teal'],
+                        languages[self.language]['free hours'], self.nb_hours_non_affected
+                    ),
+                    ft.VerticalDivider(width=30, thickness=1),
+                    DashContainer(
+                        ft.Icons.PIE_CHART_OUTLINE_OUTLINED, couleurs['amber'],
+                        languages[self.language]['affectation rate'], self.nb_affectations_rate
+                    ),
+                ], alignment=ft.MainAxisAlignment.SPACE_AROUND
+            )
+        )
+
+        # notes....
+        self.nb_notes = ft.Text()
+        self.nb_notes_success = ft.Text()
+        self.note_rate_success = ft.Text()
+
+        # General average...
+        self.general_average = ft.Text(size=30, font_family="PEB")
+        # graphique par sequence...
+
+        # finances...
+        self.expected = ft.Text()
+        self.recovered = ft.Text()
+        self.due = ft.Text()
+        self.recovery_rate = ft.Text()
+
+        # Discipline...
+        self.count_abs_unjustified = ft.Text()
+        self.count_abs_justified = ft.Text()
+        self.count_late = ft.Text()
+        self.count_ban = ft.Text()
+        self.count_reprimand = ft.Text()
+        self.count_detention = ft.Text()
+        self.count_warning = ft.Text()
+        self.count_permanent_ban = ft.Text()
+
+        # fin KPI____________________________________
+
         self.controls = [
-            self.my_content
+            ft.Column(
+                expand=True,
+                controls=[
+                    self.top_menu,
+                    ft.Container(
+                        alignment=ft.alignment.center, expand=True,
+                        content=self.my_content
+                    )
+                ], spacing=0
+            )
         ]
 
         # Overlays...
@@ -236,18 +284,139 @@ class Home(ft.View):
     async def build_main_view(self):
         print("[DEBUG] Construction de la vue principale")
 
+        access_token = self.page.client_storage.get("access_token")
+        active_sequence = await get_active_sequence(access_token)
+        self.active_sequence.value = languages[self.language][active_sequence['name']]
+        self.active_quarter.value = languages[self.language][active_sequence['quarter']]
+        self.active_sequence.data = active_sequence['name']
+        self.active_quarter.data = active_sequence['quarter']
+
+        dash_datas = await get_dashboard_stats(access_token, self.year_id)
+        # remplissage des datas dans le dashboard...
+
+        own_data = dash_datas[0]
+
+        self.nb_students.value = own_data['nombre_eleves_inscrits']
+        self.nb_classes.value = own_data['nombre_classes']
+        self.fill_rate.value = f"{write_number(own_data['taux_remplissage_global'])}%"
+
+        self.nb_teachers.value = own_data['nombre_professeurs']
+        self.nb_affected_hours.value = own_data['nombre_heures_affectees']
+        self.nb_hours_non_affected.value = own_data['nombre_heures_a_affecter']
+        total_heures = own_data['nombre_heures_affectees'] + own_data['nombre_heures_a_affecter']
+        self.nb_affectations_rate.value = f"{write_number(own_data['nombre_heures_affectees'] * 100 / total_heures)}%"
+
+        self.general_average.value = write_number(own_data['moyenne_generale_etablissement'])
+
+        graphic = BarGraphic(
+            infos=[
+                {
+                    'value': write_number(own_data['moyenne_sequence_1']),
+                    'color': 'blue', 'bg_color': 'blue50',
+                    'label': f"S1 ({write_number(own_data['moyenne_sequence_1'])})"
+                },
+                {
+                    'value': write_number(own_data['moyenne_sequence_2']),
+                    'color': 'blue', 'bg_color': 'blue50',
+                    'label': f"S2 ({write_number(own_data['moyenne_sequence_2'])})"
+                },
+                {
+                    'value': write_number(own_data['moyenne_sequence_3']),
+                    'color': 'blue', 'bg_color': 'blue50',
+                    'label': f"S3 ({write_number(own_data['moyenne_sequence_3'])})"
+                },
+                {
+                    'value': write_number(own_data['moyenne_sequence_4']),
+                    'color': 'blue', 'bg_color': 'blue50',
+                    'label': f"S4 ({write_number(own_data['moyenne_sequence_4'])})"
+                },
+                {
+                    'value': write_number(own_data['moyenne_sequence_5']),
+                    'color': 'blue', 'bg_color': 'blue50',
+                    'label': f"S5 ({write_number(own_data['moyenne_sequence_5'])})"
+                },
+                {
+                    'value': write_number(own_data['moyenne_sequence_6']),
+                    'color': 'blue', 'bg_color': 'blue50',
+                    'label': f"S6 ({write_number(own_data['moyenne_sequence_6'])})"
+                },
+            ],
+            max_value=12, title=languages[self.language]['overall average']
+        )
+
         # Remplacement du ProgressRing par l'UI principale
         self.my_content.controls.clear()
         self.my_content.controls.append(
-            ft.Row(
+            ft.Column(
                 controls=[
-                    ft.IconButton(
-                        ft.Icons.MENU, icon_size=24, icon_color='black', on_click=lambda e: self.page.open(self.drawer)
-                    ),
                     ft.Container(
-                        border_radius=16, border=ft.border.all(1, ACCENT_PLUS_COLOR),
+                        padding=10, content=ft.Row(
+                            controls=[
+                                ft.Row(
+                                    controls=[
+                                        ft.IconButton(
+                                            ft.Icons.MENU, icon_size=24, icon_color='black',
+                                            on_click=lambda e: self.page.open(self.drawer)
+                                        ),
+                                        ft.Text(languages[self.language]['menu board'], size=18, font_family='PPB')
+                                    ]
+                                ),
+                                self.sequence_ct
+                            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                        )
+                    ),
+                    ft.Divider(height=5, thickness=1),
+                    ft.Container(
+                        content=ft.Column(
+                            controls=[
+                                ft.Row(
+                                    controls=[
+                                        ft.Icon(ft.Icons.DATA_ARRAY_OUTLINED, size=24, color='black'),
+                                        ft.Text(
+                                            f"{languages[self.language]['menu students']} and {languages[self.language]['menu teachers']}",
+                                            size=16, font_family='PPI'
+                                        )
+                                    ]
+                                ),
+                                self.bloc_profs
+                            ]
+                        ),
+                        padding=10
+                    ),
+                    ft.Row(
+                        controls=[
+                            ft.Container(
+                                padding=10, border_radius=16, bgcolor="white",
+                                margin=ft.margin.only(10, 0, 10, 0),
+                                content=DashContainer(
+                                    ft.Icons.DATA_ARRAY_OUTLINED, couleurs['blue'],
+                                    languages[self.language]['overall average'],
+                                    self.general_average
+                                ),
+                            ),
+                            ft.Container(
+                                padding=10, border_radius=16, bgcolor="white", width=800,
+                                height=300, content=ft.Column(
+                                    controls=[
+                                        ft.Row(
+                                            controls=[
+                                                ft.Icon(ft.Icons.DATA_EXPLORATION_OUTLINED, size=24, color='black'),
+                                                ft.Text(
+                                                    languages[self.language]['general average trend'],
+                                                    size=16, font_family='PEB'
+                                                ),
+                                            ], alignment=ft.MainAxisAlignment.CENTER
+                                        ),
+                                        ft.Divider(height=1, thickness=1),
+                                        ft.Divider(height=1, color=ft.Colors.TRANSPARENT),
+                                        graphic
+                                    ]
+                                )
+                            )
+                        ],
+                        vertical_alignment=ft.CrossAxisAlignment.START
                     )
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                ]
             )
         )
         self.page.update()

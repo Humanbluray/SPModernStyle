@@ -26,10 +26,9 @@ roles = {
 }
 
 
-class NavBar(ft.Column):
+class NavBar(ft.Row):
     def __init__(self, cp: object):
         super().__init__(
-            expand=True
         )
         # container parent _____________________________________________________
         self.cp = cp
@@ -57,8 +56,8 @@ class NavBar(ft.Column):
             child.on_click = self.click_on_menu
 
         self.controls=[
-            self.board, self.students, self.classes, self.teachers, self.timetable,
-            self.school_fees,
+            self.board, self.students, self.classes,
+            self.teachers, self.timetable, self.school_fees,
             self.notes, self.report_book, self.users, self.years
         ]
 

@@ -31,29 +31,20 @@ class Years(ft.Container):
 
         self.active_sequence = ft.Text(size=14, font_family='PPB')
         self.active_quarter = ft.Text(size=14, font_family='PPB')
-        self.sequence_ct = ft.Chip(
-            label=self.active_sequence,
-            leading=ft.Icon(ft.Icons.CALENDAR_MONTH_OUTLINED, size=16, color='black87'),
-            shape=ft.RoundedRectangleBorder(radius=16)
-        )
-        self.top_menu = ft.Container(
-            padding=10, content=ft.Row(
+        self.sequence_ct = ft.Container(
+            padding=ft.padding.only(7, 5, 7, 5),
+            border_radius=10,
+            border=ft.border.all(1, BASE_COLOR),
+            bgcolor=SECOND_COLOR,
+            alignment=ft.alignment.center,
+            content=ft.Row(
                 controls=[
-                    ft.Row(
-                        controls=[
-                            self.menu_button,
-                            ft.Row(
-                                controls=[
-                                    ft.Text(languages[self.lang]['menu academic years'].capitalize(), size=24,
-                                            font_family="PEB"),
-                                ], spacing=0
-                            )
-                        ]
-                    ),
-                    self.sequence_ct
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                    ft.Icon('calendar_month_outlined', size=16, color='black'),
+                    self.active_sequence
+                ]
             )
         )
+
         # Main window...
         self.table_years = ft.DataTable(
             **datatable_style, expand=True,
@@ -67,19 +58,24 @@ class Years(ft.Container):
             ]
         )
         self.main_window = ft.Container(
-            expand=True,
+            expand=True, padding=20, border_radius=16,
             content=ft.Column(
                 expand=True,
                 controls=[
-                    self.top_menu,
                     ft.Container(
                         padding=ft.padding.only(10, 0, 10, 0),
                         content=ft.Row(
                             controls=[
                                 ft.Row(
                                     controls=[
-                                        MyTextButton(languages[lang]['close sequence'], self.open_check_sequence_window),
-                                        MyTextButton(languages[lang]['close school year'], self.open_generation_window)
+                                        MyTextButton(
+                                            languages[lang]['close sequence'], ft.Icons.EVENT_BUSY_OUTLINED,
+                                            self.open_check_sequence_window
+                                        ),
+                                        MyTextButton(
+                                            languages[lang]['close school year'], ft.Icons.LOCK_OUTLINED,
+                                            self.open_generation_window
+                                        )
                                     ]
                                 ),
                             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
@@ -569,12 +565,16 @@ class Years(ft.Container):
         # La surcouche (ct_registrations) est mise en avant
         window_to_show.visible = True
         window_to_show.opacity = 1
+        self.cp.top_menu.opacity = 0.2
+        self.cp.top_menu.disabled = True
         self.cp.page.update()
 
     def hide_one_window(self, window_to_hide):
         # La surcouche est masquée
         window_to_hide.visible = False
         window_to_hide.opacity = 0
+        self.cp.top_menu.opacity = 1
+        self.cp.top_menu.disabled = False
         self.cp.page.update()
 
     @staticmethod

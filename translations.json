@@ -130,7 +130,7 @@
         "female": "féminin",
         "file checking": "vérification du fichier",
         "file imported": "reste à payer",
-        "fill rate": "taux de remplissage",
+        "fill rate": "taux remplissage",
         "filter": "filtrer",
         "filter window": "fenêtre des filtres",
         "finishing operation": "clôture de l'opération",
@@ -202,7 +202,7 @@
         "nb < 10": "nb < 10",
         "nb > 10": "nb > 10",
         "nb errors": "nombre d'erreurs",
-        "nb hours affected": "nb heures assignées",
+        "nb hours affected": "heures assignées",
         "nb missing notes": "nb notes manquantes",
         "nb notes": "nb notes",
         "nb students": "nb élèves",
@@ -366,7 +366,12 @@
         "individual statistics": "statistiques individuelles",
         "total classes": "nombre total de classes",
         "user added": "Utilisateur ajouté",
-        "user disabled": "utilisateur désactivé"
+        "user disabled": "utilisateur désactivé",
+        "inactive": "inactif",
+        "free hours": "heures libres",
+        "affectation rate": "taux affectation",
+        "general average trend": "évolution moyenne générale",
+        "overall average": "moyenne générale"
     },
     "en": {
         "1- new school year": "1- new school year",
@@ -571,7 +576,7 @@
         "nb < 10": "nb < 10",
         "nb > 10": "nb > 10",
         "nb errors": "number of errors",
-        "nb hours affected": "nb hours affected",
+        "nb hours affected": "hours affected",
         "nb missing notes": "nb missing notes",
         "nb notes": "nb notes",
         "nb students": "nb students",
@@ -735,6 +740,11 @@
         "individual statistics": "individual statistics",
         "total classes": "total number of classes",
         "user added": "user added",
-        "user disabled": "user disabled"
+        "user disabled": "user disabled",
+        "inactive": "inactive",
+        "free hours": "free hours",
+        "affectation rate": "affectation rate",
+        "general average trend": "general average trend",
+        "overall average": "overall average"
     }
 }
