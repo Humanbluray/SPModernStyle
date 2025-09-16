@@ -31,60 +31,38 @@ class Students(ft.Container):
         lang = self.cp.language
         self.lang = lang
 
-        # main window...
-        self.menu_button = ft.IconButton(
-            ft.Icons.MENU, icon_size=24, icon_color='black',
-            on_click=lambda e: self.cp.page.open(self.cp.drawer)
-        )
         self.search = ft.TextField(
             **login_style, prefix_icon='search', width=300, on_change=self.filter_datas
         )
-        # self.table = ft.GridView(
-        #     expand=True,
-        #     max_extent=270,
-        #     child_aspect_ratio=0.75,
-        #     spacing=20,
-        #     run_spacing=20
-        # )
-        self.table = ft.ListView(expand=True, spacing=7, divider_thickness=1)
+        self.table = ft.ListView(expand=True, spacing=10)
 
         self.active_sequence = ft.Text(size=14, font_family='PPB')
         self.active_quarter = ft.Text(size=14, font_family='PPB')
-        self.sequence_ct = ft.Chip(
-            label=self.active_sequence,
-            leading=ft.Icon(ft.Icons.CALENDAR_MONTH_OUTLINED, size=16, color='black87'),
-            shape=ft.RoundedRectangleBorder(radius=16)
-        )
-        self.top_menu = ft.Container(
-            padding=10, content=ft.Row(
+        self.sequence_ct = ft.Container(
+            padding=ft.padding.only(7, 5, 7, 5),
+            border_radius=10,
+            border=ft.border.all(1, BASE_COLOR),
+            bgcolor=SECOND_COLOR,
+            alignment=ft.alignment.center,
+            content=ft.Row(
                 controls=[
-                    ft.Row(
-                        controls=[
-                            self.menu_button,
-                            ft.Row(
-                                controls=[
-                                    ft.Text(languages[self.lang]['menu students'].capitalize(), size=24,
-                                            font_family="PEB"),
-                                ], spacing=0
-                            )
-                        ]
-                    ),
-                    self.sequence_ct
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                    ft.Icon('calendar_month_outlined', size=16, color='black'),
+                    self.active_sequence
+                ]
             )
         )
         self.main_window = ft.Container(
             expand=True, padding=20, border_radius=16,
             content=ft.Column(
                 controls=[
-                    self.top_menu,
                     ft.Row(
                         controls=[
                             ft.Row(
                                 controls=[
-                                    MyTextButton( languages[lang]['new registration'], self.open_registrations_ct),
-                                    MyTextButton(languages[lang]['new student'], self.open_new_student_container),
-                                    MyTextButton('disicpline', self.open_discipline_window)
+                                    MyTextButton( languages[lang]['new registration'], ft.Icons.ADD_HOME_OUTLINED, self.open_registrations_ct),
+                                    MyTextButton(languages[lang]['new student'], ft.Icons.PERSON_ADD_OUTLINED, self.open_new_student_container),
+                                    MyTextButton('disicpline', ft.Icons.ADD_ALERT_OUTLINED, self.open_discipline_window),
+                                    self.sequence_ct
                                 ]
                             ),
                             self.search
@@ -429,7 +407,7 @@ class Students(ft.Container):
         )
 
         # School fees window ________________________________________________
-        self.sc_name = ft.Text(size=24, font_family='PPM')
+        self.sc_name = ft.Text(size=16, font_family='PPM')
         self.sc_surname = ft.Text(size=16, font_family='PPM', color='black54')
         self.sc_student_id = ft.Text(size=11, font_family='PPI', color='grey', visible=False)
         self.sc_class = ft.Text(size=16, font_family="PPB")
@@ -471,11 +449,12 @@ class Students(ft.Container):
             **login_style, width=150, read_only=True, label=languages[lang]['amount due']
         )
 
-        self.status = ft.Text(size=16, font_family="PPM")
-        self.status_icon = ft.Icon(size=16)
-        self.status_container = ft.Container(
-            alignment=ft.alignment.center, padding=10, border_radius=16,
-            content=ft.Row([self.status_icon, self.status], spacing=3)
+        self.status = ft.Text(size=14, font_family="PPM")
+        self.status_icon = ft.Icon(size=14)
+        self.status_container = ft.Chip(
+            label=self.status,
+            leading=self.status_icon,
+            shape=ft.RoundedRectangleBorder(radius=12)
         )
         self.sc_pay_button = MyButton(
             languages[self.lang]['make a payment'], 'monetization_on_outlined',
@@ -1368,8 +1347,8 @@ class Students(ft.Container):
                 controls=[
                     ft.Row(
                         controls=[
-                            ft.Column(
-                                [self.sc_name, self.sc_surname, self.sc_student_id], spacing=0
+                            ft.Row(
+                                [self.sc_name, self.sc_surname, self.sc_student_id],
                             ),
                             self.status_container
                         ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN

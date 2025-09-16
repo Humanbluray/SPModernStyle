@@ -1,8 +1,10 @@
 import flet as ft
+from PIL.ImageOps import expand
+
 from translations.translations import languages
 from utils.styles import login_style, password_style, drop_style
-from utils.couleurs import ACCENT_PLUS_COLOR, PAGE_BG_COLOR, BASE_COLOR
-from components import MyButton
+from utils.couleurs import ACCENT_PLUS_COLOR, PAGE_BG_COLOR, BASE_COLOR, SECOND_COLOR, THUMB_COLOR
+from components import MyButton, LanguageSelection
 from services.supabase_client import supabase_client
 
 SP_LOGO_URL = 'https://nppwkqytgqlqijpeulfj.supabase.co/storage/v1/object/public/logo_school_pilot/logo%20mini.png'
@@ -13,45 +15,36 @@ class Signin(ft.View):
         super().__init__(
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             vertical_alignment=ft.MainAxisAlignment.CENTER,
-            bgcolor=PAGE_BG_COLOR, route='/'
+            route='/', padding=0,
         )
         self.page = page
-        self.lang_button = ft.Dropdown(
-            **drop_style, options=[
-                ft.dropdown.Option(
-                    key=choice['value'], text=f"{choice['text']}"
-                )
-                for choice in [
-                    {'value': 'fr', "text": 'Français'}, {'value': 'en', "text": 'Anglais'}
-                ]
-            ], value="fr", on_change=self.change_language,
-            filled=True, fill_color=PAGE_BG_COLOR,
-        )
+        self.selected_language = "fr"
+        self.lang_button = LanguageSelection(self)
         self.email = ft.TextField(
             **login_style, prefix_icon=ft.Icons.PERSON_OUTLINE_OUTLINED,
-            label=languages[self.lang_button.value]['email'],
+            label=languages[self.selected_language]['email'],
         )
         self.password = ft.TextField(
             **password_style, prefix_icon=ft.Icons.LOCK_OUTLINE_ROUNDED,
-            label=languages[self.lang_button.value]['password'],
+            label=languages[self.selected_language]['password'],
         )
         self.connect_button = MyButton(
-            languages[self.lang_button.value]['sign in'], None, None,
+            languages[self.selected_language]['sign in'], None, None,
             self.authenticate_user
         )
 
         self.choose_text = ft.Text(
-            languages[self.lang_button.value]['choose language'], size=16, font_family='PPM'
+            languages[self.selected_language]['choose language'], size=16, font_family='PPM'
         )
         self.login_text = ft.Text(
-            languages[self.lang_button.value]['login'].capitalize(),
+            languages[self.selected_language]['login'].capitalize(),
             size=30, font_family="PEB"
         )
         self.info_text =  ft.Text(
-            languages[self.lang_button.value]['enter informations'], size=13, font_family="PPM"
+            languages[self.selected_language]['enter informations'], size=13, font_family="PPM"
         )
         self.welcome_text = ft.Text(
-            languages[self.lang_button.value]['welcome to SP'],
+            languages[self.selected_language]['welcome to SP'],
             size=48, font_family='PEB'
         )
 
@@ -88,36 +81,54 @@ class Signin(ft.View):
                 color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK),
             )
         )
-        self.controls = [
-            ft.Stack(
-                alignment=ft.alignment.center,
-                controls=[
-                    ft.Container(
-                        expand=True, bgcolor=PAGE_BG_COLOR
-                    ),
-                    ft.Row(
-                        controls=[
-                            ft.Column(
-                                controls=[
-                                    ft.Column(
-                                        controls=[self.welcome_text],
-                                        spacing=0,
-                                        horizontal_alignment=ft.CrossAxisAlignment.CENTER
-
-                                    ),
-                                    ft.Divider(height=10, color=ft.Colors.TRANSPARENT),
-                                    ft.Column(
+        
+        self.controls=[
+            ft.Container(
+                gradient=ft.LinearGradient(
+                    colors=[ACCENT_PLUS_COLOR, ft.Colors.INDIGO_900],
+                    begin=ft.alignment.top_left,
+                    end=ft.alignment.bottom_right,
+                ),
+                expand=True,
+                content=ft.Row(
+                    expand=True,
+                    controls=[
+                        ft.Container(
+                            expand=True, alignment=ft.alignment.center,
+                            content=ft.Image(src='assets/pictures/background.png', width=800, height=800)
+                        ),
+                        ft.Container(
+                            width=450, padding=60, bgcolor='white',
+                            border_radius=ft.border_radius.only(top_left=48, bottom_left=48),
+                            content=ft.Column(
+                                [
+                                    # En-tête avec le logo et le titre
+                                    ft.Row(
                                         controls=[
-                                            self.choose_text,
-                                            self.lang_button
-                                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER
+                                            ft.Text("S", size=50, font_family='PEB', color=BASE_COLOR),
+                                            ft.Text("P", size=50, font_family='PEB')
+                                        ], spacing=0, alignment=ft.MainAxisAlignment.CENTER
+                                    ),
+                                    self.login_text,
+                                    self.info_text,
+                                    ft.Divider(height=10, color="transparent"),
+                                    self.email, self.password,
+                                    ft.Divider(height=1, color="transparent"),
+                                    self.connect_button,
+                                    ft.Divider(height=40, color="transparent"),
+                                    self.choose_text,
+                                    ft.Row(
+                                        [self.lang_button],
+                                        alignment=ft.MainAxisAlignment.CENTER
                                     )
-                                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER
-                            ),
-                            self.page_container
-                        ], alignment=ft.MainAxisAlignment.CENTER, spacing=200
-                    )
-                ]
+                                ],
+                                alignment=ft.MainAxisAlignment.CENTER,
+                                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                spacing=10
+                            )
+                        )
+                    ]
+                )
             )
         ]
 
@@ -134,18 +145,8 @@ class Signin(ft.View):
         )
         self.page.overlay.append(self.box)
 
-    def change_language(self, e):
-        lang = self.lang_button.value
-        self.choose_text.value = languages[lang]['choose language']
-        self.connect_button.content.controls[1].value = languages[lang]['sign in']
-        self.login_text.value =  languages[lang]['login'].capitalize()
-        self.password.label = languages[lang]['password']
-        self.info_text.value = languages[self.lang_button.value]['enter informations']
-        self.welcome_text.value = languages[self.lang_button.value]['welcome to SP']
-        self.page.update()
-
     def authenticate_user(self, e):
-        language = self.lang_button.value
+        language = self.selected_language
         email = self.email.value
         password = self.password.value
 

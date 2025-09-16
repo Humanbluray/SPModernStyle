@@ -17,10 +17,6 @@ class Classes(ft.Container):
         self.lang = lang
 
         # main window...
-        self.menu_button = ft.IconButton(
-            ft.Icons.MENU, icon_size=24, icon_color='black',
-            on_click=lambda e: self.cp.page.open(self.cp.drawer)
-        )
         self.search = ft.TextField(
             **login_style, prefix_icon='search', width=300, on_change=self.filter_datas
         )
@@ -36,27 +32,17 @@ class Classes(ft.Container):
 
         self.active_sequence = ft.Text(size=14, font_family='PPB')
         self.active_quarter = ft.Text(size=14, font_family='PPB')
-        self.sequence_ct = ft.Chip(
-            label=self.active_sequence,
-            leading=ft.Icon(ft.Icons.CALENDAR_MONTH_OUTLINED, size=16, color='black87'),
-            shape=ft.RoundedRectangleBorder(radius=16)
-        )
-        self.top_menu = ft.Container(
-            padding=10, content=ft.Row(
+        self.sequence_ct = ft.Container(
+            padding=ft.padding.only(7, 5, 7, 5),
+            border_radius=10,
+            border=ft.border.all(1, BASE_COLOR),
+            bgcolor=SECOND_COLOR,
+            alignment=ft.alignment.center,
+            content=ft.Row(
                 controls=[
-                    ft.Row(
-                        controls=[
-                            self.menu_button,
-                            ft.Row(
-                                controls=[
-                                    ft.Text(languages[self.lang]['menu classes'].capitalize(), size=24,
-                                            font_family="PEB"),
-                                ], spacing=0
-                            )
-                        ]
-                    ),
-                    self.sequence_ct
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                    ft.Icon('calendar_month_outlined', size=16, color='black'),
+                    self.active_sequence
+                ]
             )
         )
 
@@ -64,12 +50,16 @@ class Classes(ft.Container):
             expand=True, padding=20, border_radius=16,
             content=ft.Column(
                 controls=[
-                    self.top_menu,
                     ft.Row(
                         controls=[
                             ft.Row(
                                 controls=[
-                                    MyTextButton( languages[self.lang]['new class'], self.open_new_class_window),
+                                    MyTextButton(
+                                        languages[self.lang]['new class'],
+                                        ft.Icons.ADD_HOME_OUTLINED,
+                                        self.open_new_class_window
+                                    ),
+                                    self.sequence_ct
                                 ]
                             ),
                             self.search
@@ -377,12 +367,16 @@ class Classes(ft.Container):
         # La surcouche (ct_registrations) est mise en avant
         window_to_show.visible = True
         window_to_show.opacity = 1
+        self.cp.top_menu.opacity = 0.2
+        self.cp.top_menu.disabled = True
         self.cp.page.update()
 
     def hide_one_window(self, window_to_hide):
         # La surcouche est masquée
         window_to_hide.visible = False
         window_to_hide.opacity = 0
+        self.cp.top_menu.opacity = 1
+        self.cp.top_menu.disabled = False
         self.cp.page.update()
 
     def open_new_class_window(self, e):
